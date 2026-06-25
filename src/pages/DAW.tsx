@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Loader2, LayoutGrid, SlidersHorizontal, Activity, Music2, Mic } from 'lucide-react';
+import { Loader2, LayoutGrid, SlidersHorizontal, Activity, Music2, Mic, HelpCircle } from 'lucide-react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Arranger from '../components/Arranger';
@@ -11,20 +11,20 @@ import MixerView from '../components/MixerView';
 import AutomationView from '../components/AutomationView';
 import SampleBrowser from '../components/SampleBrowser';
 import AudioRecorder from '../components/AudioRecorder';
+import ShortcutHelp from '../components/ShortcutHelp';
+import OnboardingPanel from '../components/OnboardingPanel';
 import { Track, Clip, Note, BeatPosition, stepToBeatPosition, SnapResolution, LoopRegion, ViewMode, AutomationPoint, AutomationType, AudioClip, AudioFileRef } from '../types';
 import { createDefaultTracks, createEmptyTrack, createAudioTrack } from '../lib/defaultProject';
+import { generateClipId, generateNoteId, generateAudioFileId } from '../lib/idGenerator';
 import { audioEngine } from '../lib/audioEngine';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useUndoRedo } from '../hooks/useUndoRedo';
 import { decodeAudioFile, extractWaveformData } from '../components/WaveformDisplay';
+import { STEPS_PER_BAR } from '../lib/constants';
+import { clampBpm } from '../lib/utils';
 
-const STEPS_PER_BAR = 16;
 const STEP_DURATION = (bpm: number) => 60 / bpm / 4;
-
-let clipIdCtr = 0; const genClipId = () => `clip-${Date.now()}-${clipIdCtr++}`;
-let noteIdCtr = 0; const genNoteId = () => `n-${Date.now()}-${noteIdCtr++}`;
-let audioFileIdCtr = 0; const genAudioFileId = () => `audio-${Date.now()}-${audioFileIdCtr++}`;
 
 export default function DAW() {
   const { id } = useParams<{ id: string }>();
@@ -55,6 +55,7 @@ export default function DAW() {
   const [viewMode, setViewMode] = useState<ViewMode>('arranger');
   const [showSampleBrowser, setShowSampleBrowser] = useState(false);
   const [showRecorder, setShowRecorder] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const [audioFiles, setAudioFiles] = useState<Map<string, AudioFileRef>>(new Map());
 
   const { tracks, pushTracks, undo, redo, canUndo, canRedo, reset } = useUndoRedo(createDefaultTracks());
@@ -123,6 +124,7 @@ export default function DAW() {
       if (e.code === 'Digit2') setViewMode('mixer');
       if (e.code === 'Digit3') setViewMode('automation');
       if (e.code === 'KeyR' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); setShowRecorder(true); }
+      if (e.code === 'Slash' && e.shiftKey) { e.preventDefault(); setShowShortcuts(true); }
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
@@ -138,7 +140,7 @@ export default function DAW() {
     setCurrentStep(-1);
     setBeatPosition({ bar: 1, beat: 1, sub: 1 });
   };
-  const handleBpmChange = (val: number) => setBpm(Math.max(40, Math.min(240, val)));
+  const handleBpmChange = (val: number) => setBpm(clampBpm(val));
   const handleLoopBarsChange = (bars: number) => { setLoopBars(bars); if (isPlaying) { audioEngine.stop(); setIsPlaying(false); } };
 
   const handleTrackVolumeChange = useCallback((trackId: string, volume: number) => {
@@ -192,7 +194,7 @@ export default function DAW() {
   }, [tracks]);
 
   const handleClipAdd = useCallback((trackId: string, startStep: number) => {
-    const newClip: Clip = { id: genClipId(), startStep, length: STEPS_PER_BAR, notes: [] };
+    const newClip: Clip = { id: generateClipId(), startStep, length: STEPS_PER_BAR, notes: [] };
     pushTracks(tracks.map(t => t.id === trackId ? { ...t, clips: [...t.clips, newClip] } : t));
     setSelectedTrackId(trackId);
     setSelectedClipId(newClip.id);
@@ -217,8 +219,8 @@ export default function DAW() {
     const clip = track?.clips.find(c => c.id === clipId);
     if (!track || !clip) return;
     const newClip: Clip = {
-      id: genClipId(), startStep: clip.startStep + clip.length,
-      length: clip.length, notes: clip.notes.map(n => ({ ...n, id: genNoteId() })),
+      id: generateClipId(), startStep: clip.startStep + clip.length,
+      length: clip.length, notes: clip.notes.map(n => ({ ...n, id: generateNoteId() })),
     };
     pushTracks(tracks.map(t => t.id === trackId ? { ...t, clips: [...t.clips, newClip] } : t));
   }, [tracks, pushTracks]);
@@ -294,7 +296,7 @@ export default function DAW() {
       const audioTrack = createAudioTrack('Recorded', '#ef4444');
       const stepsDuration = Math.ceil((blob.size / 1000) / (STEP_DURATION(bpm) * 1000));
       const audioClip: AudioClip = {
-        id: genClipId(),
+        id: generateClipId(),
         startStep: 0,
         duration: Math.max(16, stepsDuration),
         fileId: id,
@@ -309,7 +311,7 @@ export default function DAW() {
   }, [tracks, pushTracks, bpm]);
 
   const handleFileUpload = useCallback(async (file: File): Promise<string> => {
-    const fileId = genAudioFileId();
+    const fileId = generateAudioFileId();
     const buffer = await decodeAudioFile(file);
     const waveformData = buffer ? extractWaveformData(buffer, 100) : [];
     const blobUrl = URL.createObjectURL(file);
@@ -336,7 +338,7 @@ export default function DAW() {
     if (!audioRef) return;
 
     const audioClip: AudioClip = {
-      id: genClipId(),
+      id: generateClipId(),
       startStep: step,
       duration: Math.ceil(audioRef.duration / STEP_DURATION(bpm)),
       fileId,
@@ -409,6 +411,12 @@ export default function DAW() {
             }`}>
             <Music2 size={12} />
             Samples
+          </button>
+          <button
+            onClick={() => setShowShortcuts(true)}
+            className="flex items-center gap-1.5 px-2 py-1 rounded text-xs text-gray-500 hover:text-white transition-colors"
+            title="Keyboard shortcuts (?)">
+            <HelpCircle size={12} />
           </button>
         </div>
       </div>
@@ -515,6 +523,12 @@ export default function DAW() {
         projectName={projectName}
         totalSteps={loopBars * STEPS_PER_BAR}
         bpm={bpm} />
+
+      {showShortcuts && (
+        <ShortcutHelp onClose={() => setShowShortcuts(false)} />
+      )}
+
+      <OnboardingPanel />
 
       {showRecorder && (
         <AudioRecorder

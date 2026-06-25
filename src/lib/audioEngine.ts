@@ -1,7 +1,7 @@
 import * as Tone from 'tone';
-import { Track, InstrumentType, normalizeNote, LoopRegion, AutomationPoint } from '../types';
-
-const STEPS_PER_BAR = 16;
+import { Track, InstrumentType, normalizeNote, LoopRegion } from '../types';
+import { STEPS_PER_BAR } from './constants';
+import { clampVelocity } from './utils';
 
 type AnyInstrument = Tone.MembraneSynth | Tone.NoiseSynth | Tone.MetalSynth | Tone.PolySynth | Tone.MonoSynth;
 
@@ -94,7 +94,7 @@ class AudioEngine {
   private triggerNote(track: Track, pitch: string, duration: number, velocity: number, time: number) {
     const node = this.getOrCreateNode(track);
     const durationSec = Tone.Time('16n').valueOf() * duration;
-    const vel = Math.max(0, Math.min(1, velocity));
+    const vel = clampVelocity(velocity);
 
     const inst = track.instrumentType;
     if (inst === 'kick') {

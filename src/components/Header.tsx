@@ -68,8 +68,6 @@ export default function Header({
         </select>
       </div>
 
-      <metronome enabled={metronomeEnabled} countInBars={countInBars} onToggle={onMetronomeToggle} onCountInChange={onCountInChange} />
-
       <Metronome enabled={metronomeEnabled} countInBars={countInBars} onToggle={onMetronomeToggle} onCountInChange={onCountInChange} />
 
       <button onClick={onExport} title="Export Audio"

@@ -50,7 +50,7 @@ export default function Dashboard() {
     setDeleteId(null);
   }
 
-  const fmt = (ts: string) => new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+const formatDate = (ts: string) => new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 
   const templateIcons = {
     'default': Music2,
@@ -112,7 +112,7 @@ export default function Dashboard() {
                 <div className="flex items-center gap-3 text-xs text-gray-500">
                   <span className="flex items-center gap-1"><Layers size={10} /> {project.data?.tracks?.length ?? 0} tracks</span>
                   <span>{project.bpm} BPM</span>
-                  <span className="flex items-center gap-1 ml-auto"><Clock size={10} /> {fmt(project.updated_at)}</span>
+                  <span className="flex items-center gap-1 ml-auto"><Clock size={10} /> {formatDate(project.updated_at)}</span>
                 </div>
                 <button onClick={e => { e.stopPropagation(); setDeleteId(project.id); }}
                   className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 p-1.5 rounded-md text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all">

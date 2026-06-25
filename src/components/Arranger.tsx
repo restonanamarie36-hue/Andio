@@ -1,17 +1,12 @@
 import { useRef, useState } from 'react';
 import { Volume2, VolumeX, X, Settings, Copy, Trash2, Plus, Repeat } from 'lucide-react';
 import { Track, Clip, LoopRegion } from '../types';
-
-const STEPS_PER_BAR = 16;
-const BEATS_PER_BAR = 4;
-const STEPS_PER_BEAT = 4;
-const BEAT_W = 56;
-const STEP_W = BEAT_W / STEPS_PER_BEAT;
-const BAR_W = BEAT_W * BEATS_PER_BAR;
-const TRACK_H = 68;
-const HEADER_W = 200;
-const RULER_H = 40;
-const RESIZE_HANDLE_W = 8;
+import {
+  STEPS_PER_BAR, BEATS_PER_BAR, STEPS_PER_BEAT,
+  BEAT_WIDTH as BEAT_W, STEP_WIDTH as STEP_W, BAR_WIDTH as BAR_W,
+  TRACK_HEIGHT as TRACK_H, HEADER_WIDTH as HEADER_W, RULER_HEIGHT as RULER_H,
+  RESIZE_HANDLE_WIDTH as RESIZE_HANDLE_W,
+} from '../lib/constants';
 
 interface Props {
   tracks: Track[]; loopBars: number; selectedClipId: string | null; currentStep: number;

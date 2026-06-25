@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 import { Track, AutomationType, AutomationPoint } from '../types';
-
-const STEP_W = 14;
+import { STEP_WIDTH as STEP_W } from '../lib/constants';
 
 let pointIdCtr = 0;
 const genPointId = () => `ap-${Date.now()}-${pointIdCtr++}`;
