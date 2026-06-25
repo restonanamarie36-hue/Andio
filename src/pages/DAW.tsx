@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate, useBlocker } from 'react-router-dom';
-import { Loader2, LayoutGrid, SlidersHorizontal, Activity, Music2 } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Loader2, LayoutGrid, SlidersHorizontal, Activity, Music2, Mic } from 'lucide-react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Arranger from '../components/Arranger';
@@ -10,17 +10,21 @@ import ExportModal from '../components/ExportModal';
 import MixerView from '../components/MixerView';
 import AutomationView from '../components/AutomationView';
 import SampleBrowser from '../components/SampleBrowser';
-import { Track, Clip, Note, BeatPosition, stepToBeatPosition, SnapResolution, LoopRegion, ViewMode, AutomationPoint, AutomationType } from '../types';
-import { createDefaultTracks, createEmptyTrack } from '../lib/defaultProject';
+import AudioRecorder from '../components/AudioRecorder';
+import { Track, Clip, Note, BeatPosition, stepToBeatPosition, SnapResolution, LoopRegion, ViewMode, AutomationPoint, AutomationType, AudioClip, AudioFileRef } from '../types';
+import { createDefaultTracks, createEmptyTrack, createAudioTrack } from '../lib/defaultProject';
 import { audioEngine } from '../lib/audioEngine';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useUndoRedo } from '../hooks/useUndoRedo';
-import { useMIDIInput } from '../hooks/useMIDIInput';
+import { decodeAudioFile, extractWaveformData } from '../components/WaveformDisplay';
 
 const STEPS_PER_BAR = 16;
+const STEP_DURATION = (bpm: number) => 60 / bpm / 4;
+
 let clipIdCtr = 0; const genClipId = () => `clip-${Date.now()}-${clipIdCtr++}`;
 let noteIdCtr = 0; const genNoteId = () => `n-${Date.now()}-${noteIdCtr++}`;
+let audioFileIdCtr = 0; const genAudioFileId = () => `audio-${Date.now()}-${audioFileIdCtr++}`;
 
 export default function DAW() {
   const { id } = useParams<{ id: string }>();
@@ -50,17 +54,13 @@ export default function DAW() {
   const [pianoRollStep, setPianoRollStep] = useState(0);
   const [viewMode, setViewMode] = useState<ViewMode>('arranger');
   const [showSampleBrowser, setShowSampleBrowser] = useState(false);
+  const [showRecorder, setShowRecorder] = useState(false);
+  const [audioFiles, setAudioFiles] = useState<Map<string, AudioFileRef>>(new Map());
 
   const { tracks, pushTracks, undo, redo, canUndo, canRedo, reset } = useUndoRedo(createDefaultTracks());
   const initialLoadRef = useRef(false);
 
   const selectedTrack = tracks.find(t => t.id === selectedTrackId) ?? null;
-  const handleMIDINote = useCallback((pitch: string, velocity: number) => {
-    if (!selectedTrack) return;
-    audioEngine.playNote(selectedTrack, pitch, velocity);
-  }, [selectedTrack]);
-
-  const midiInput = useMIDIInput(selectedTrack, handleMIDINote);
 
   useEffect(() => {
     if (!id) { setLoadingProject(false); return; }
@@ -107,11 +107,6 @@ export default function DAW() {
   useEffect(() => { audioEngine.setLoopRegion(loopRegion); }, [loopRegion]);
   useEffect(() => { return () => { audioEngine.dispose(); }; }, []);
 
-  useBlocker(({ currentLocation, nextLocation }) => {
-    if (!hasUnsavedChanges) return false;
-    return !window.confirm('You have unsaved changes. Leave anyway?');
-  });
-
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const inInput = e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement;
@@ -127,6 +122,7 @@ export default function DAW() {
       if (e.code === 'Digit1') setViewMode('arranger');
       if (e.code === 'Digit2') setViewMode('mixer');
       if (e.code === 'Digit3') setViewMode('automation');
+      if (e.code === 'KeyR' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); setShowRecorder(true); }
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
@@ -290,15 +286,77 @@ export default function DAW() {
     }));
   }, [tracks, pushTracks]);
 
-  const handleSampleDrop = useCallback((fileId: string, step: number) => {
-    // Placeholder for audio clip creation
-    console.log('Sample dropped:', fileId, 'at step', step);
-  }, []);
+  // Audio file handling
+  const handleRecordComplete = useCallback(async (blob: Blob, name: string) => {
+    const file = new File([blob], name, { type: blob.type });
+    const id = await handleFileUpload(file);
+    if (id) {
+      const audioTrack = createAudioTrack('Recorded', '#ef4444');
+      const stepsDuration = Math.ceil((blob.size / 1000) / (STEP_DURATION(bpm) * 1000));
+      const audioClip: AudioClip = {
+        id: genClipId(),
+        startStep: 0,
+        duration: Math.max(16, stepsDuration),
+        fileId: id,
+        fileName: name,
+        volume: 100,
+        reversed: false,
+        playbackRate: 1,
+      };
+      pushTracks([...tracks, { ...audioTrack, audioClips: [audioClip] }]);
+      setSelectedTrackId(audioTrack.id);
+    }
+  }, [tracks, pushTracks, bpm]);
 
   const handleFileUpload = useCallback(async (file: File): Promise<string> => {
-    // In production, this would upload to storage
-    return `sample-${Date.now()}-${file.name}`;
+    const fileId = genAudioFileId();
+    const buffer = await decodeAudioFile(file);
+    const waveformData = buffer ? extractWaveformData(buffer, 100) : [];
+    const blobUrl = URL.createObjectURL(file);
+
+    setAudioFiles(prev => {
+      const next = new Map(prev);
+      next.set(fileId, {
+        id: fileId,
+        name: file.name,
+        blob: file,
+        blobUrl,
+        buffer: buffer ?? undefined,
+        waveformData,
+        duration: buffer?.duration ?? 2,
+      });
+      return next;
+    });
+
+    return fileId;
   }, []);
+
+  const handleSampleDrop = useCallback((fileId: string, step: number) => {
+    const audioRef = audioFiles.get(fileId);
+    if (!audioRef) return;
+
+    const audioClip: AudioClip = {
+      id: genClipId(),
+      startStep: step,
+      duration: Math.ceil(audioRef.duration / STEP_DURATION(bpm)),
+      fileId,
+      fileName: audioRef.name,
+      volume: 100,
+      reversed: false,
+      playbackRate: 1,
+      waveformData: audioRef.waveformData,
+    };
+
+    const audioTrack = tracks.find(t => t.isAudio) ?? createAudioTrack('Audio', '#f97316');
+    const newTrack = { ...audioTrack, audioClips: [...audioTrack.audioClips, audioClip] };
+
+    if (!tracks.find(t => t.isAudio)) {
+      pushTracks([...tracks, newTrack]);
+      setSelectedTrackId(newTrack.id);
+    } else {
+      pushTracks(tracks.map(t => t.id === audioTrack.id ? newTrack : t));
+    }
+  }, [audioFiles, tracks, pushTracks, bpm]);
 
   const selectedClip = selectedTrack?.clips.find(c => c.id === selectedClipId) ?? null;
 
@@ -321,7 +379,6 @@ export default function DAW() {
         onSnapChange={setSnapResolution} onLoopRegionChange={setLoopRegion}
         onExport={() => setShowExportModal(true)} />
 
-      {/* View mode tabs */}
       <div className="flex items-center gap-1 px-4 py-1.5 bg-[#0a0c11] border-b border-white/10 shrink-0">
         {([
           { id: 'arranger', icon: LayoutGrid, label: 'Arranger' },
@@ -338,6 +395,13 @@ export default function DAW() {
           </button>
         ))}
         <div className="ml-auto flex items-center gap-1">
+          <button
+            onClick={() => setShowRecorder(true)}
+            className="flex items-center gap-1.5 px-2 py-1 rounded text-xs text-red-400 hover:text-red-300 transition-colors"
+            title="Record Audio (Ctrl+R)">
+            <Mic size={12} />
+            Record
+          </button>
           <button
             onClick={() => setShowSampleBrowser(s => !s)}
             className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs transition-colors ${
@@ -451,6 +515,12 @@ export default function DAW() {
         projectName={projectName}
         totalSteps={loopBars * STEPS_PER_BAR}
         bpm={bpm} />
+
+      {showRecorder && (
+        <AudioRecorder
+          onClose={() => setShowRecorder(false)}
+          onRecordComplete={handleRecordComplete} />
+      )}
     </div>
   );
 }

@@ -22,6 +22,8 @@ export interface AudioClip {
   volume: number;
   reversed: boolean;
   waveformData?: number[];
+  playbackRate: number;
+  offset?: number;
 }
 
 export interface Clip {
@@ -47,6 +49,7 @@ export interface Track {
   name: string;
   category: TrackCategory;
   instrumentType: InstrumentType;
+  isAudio?: boolean;
   color: string;
   volume: number;
   pan: number;
@@ -91,25 +94,6 @@ export interface LoopRegion {
   endStep: number;
 }
 
-export interface SampleFile {
-  id: string;
-  name: string;
-  category: 'drums' | 'melodic' | 'fx' | 'vocals';
-  duration: number;
-  waveformData: number[];
-  url?: string;
-}
-
-export interface MixerChannel {
-  trackId: string;
-  volume: number;
-  pan: number;
-  muted: boolean;
-  soloed: boolean;
-  vuLeft: number;
-  vuRight: number;
-}
-
 export function stepToBeatPosition(step: number): BeatPosition {
   const bar = Math.floor(step / 16) + 1;
   const beat = Math.floor((step % 16) / 4) + 1;
@@ -125,6 +109,47 @@ export function normalizeNote(pitch: string): string {
   if (!m) return pitch;
   return `${map[m[1]] ?? m[1]}${m[2]}`;
 }
+
+export interface AudioFileRef {
+  id: string;
+  name: string;
+  blob?: Blob;
+  blobUrl?: string;
+  buffer?: AudioBuffer;
+  waveformData?: number[];
+  duration: number;
+}
+
+export type TemplateType = 'default' | 'empty' | 'beat' | 'orchestral' | 'synth' | 'vocal-demo';
+
+export interface ProjectTemplate {
+  id: TemplateType;
+  name: string;
+  description: string;
+  bpm: number;
+  bars: number;
+};
+
+export const PROJECT_TEMPLATES: ProjectTemplate[] = [
+  { id: 'default', name: '8-Track Demo', description: 'A full band template with drums, melodic, and jazz instruments.', bpm: 120, bars: 4 },
+  { id: 'empty', name: 'Empty Project', description: 'Start from scratch with no tracks.', bpm: 120, bars: 4 },
+  { id: 'beat', name: 'Beat Grid', description: 'Dedicated beat-making setup with multiple drum tracks.', bpm: 90, bars: 4 },
+  { id: 'synth', name: 'Synth Studio', description: 'Layers of synthesizers for ambient and electronic production.', bpm: 128, bars: 8 },
+  { id: 'vocal-demo', name: 'Vocal Demo', description: 'Piano + strings with space for vocal recording.', bpm: 140, bars: 8 },
+];
+
+export const PRESET_CHORDS: Record<string, string[]> = {
+  'Major': ['C', 'E', 'G'],
+  'Minor': ['C', 'D#', 'G'],
+  'Dim': ['C', 'D#', 'F#'],
+  'Aug': ['C', 'E', 'G#'],
+  'Maj7': ['C', 'E', 'G', 'B'],
+  'Min7': ['C', 'D#', 'G', 'A#'],
+  'Dom7': ['C', 'E', 'G', 'A#'],
+  'Sus2': ['C', 'D', 'G'],
+  'Sus4': ['C', 'F', 'G'],
+  'Add9': ['C', 'E', 'G', 'D'],
+};
 
 export const SNAP_DENOM: Record<SnapResolution, number> = {
   '4n': 16,
@@ -143,19 +168,6 @@ export const TRACK_COLORS = [
   '#06b6d4', '#3b82f6', '#a855f7', '#ec4899',
   '#14b8a6', '#f43f5e', '#8b5cf6', '#0ea5e9',
 ];
-
-export const PRESET_CHORDS: Record<string, string[]> = {
-  'Major': ['C', 'E', 'G'],
-  'Minor': ['C', 'D#', 'G'],
-  'Dim': ['C', 'D#', 'F#'],
-  'Aug': ['C', 'E', 'G#'],
-  'Maj7': ['C', 'E', 'G', 'B'],
-  'Min7': ['C', 'D#', 'G', 'A#'],
-  'Dom7': ['C', 'E', 'G', 'A#'],
-  'Sus2': ['C', 'D', 'G'],
-  'Sus4': ['C', 'F', 'G'],
-  'Add9': ['C', 'E', 'G', 'D'],
-};
 
 export const BUILT_IN_SAMPLES: SampleFile[] = [
   { id: 'kick-808', name: '808 Kick', category: 'drums', duration: 0.5, waveformData: [] },

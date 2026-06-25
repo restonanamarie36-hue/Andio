@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Music2, Plus, LogOut, Trash2, Clock, Layers, Loader2, AlertCircle, X, Check } from 'lucide-react';
+import { Music2, Plus, LogOut, Trash2, Clock, Layers, Loader2, AlertCircle, X, Check, FileAudio, Music, Waves, Mic2, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import { SavedProject } from '../types';
-import { createDefaultTracks } from '../lib/defaultProject';
+import { SavedProject, PROJECT_TEMPLATES, TemplateType } from '../types';
+import { tracksFromTemplate } from '../lib/defaultProject';
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
@@ -14,7 +14,12 @@ export default function Dashboard() {
   const [creating, setCreating] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: 'My New Project', bpm: 120, loopBars: 4, template: 'default' as 'default' | 'empty' });
+  const [form, setForm] = useState({
+    name: 'My New Project',
+    bpm: 120,
+    loopBars: 4,
+    template: 'default' as TemplateType
+  });
 
   useEffect(() => { loadProjects(); }, []);
 
@@ -28,10 +33,12 @@ export default function Dashboard() {
   async function createProject() {
     if (!user) return;
     setCreating(true);
-    const tracks = form.template === 'default' ? createDefaultTracks() : [];
+    const tracks = tracksFromTemplate(form.template);
     const { data, error } = await supabase.from('projects').insert({
-      name: form.name.trim() || 'Untitled', bpm: form.bpm,
-      data: { tracks, loopBars: form.loopBars }, user_id: user.id,
+      name: form.name.trim() || 'Untitled',
+      bpm: form.bpm,
+      data: { tracks, loopBars: form.loopBars },
+      user_id: user.id,
     }).select('id').single();
     setCreating(false);
     if (!error && data) navigate(`/project/${data.id}`);
@@ -44,6 +51,14 @@ export default function Dashboard() {
   }
 
   const fmt = (ts: string) => new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+
+  const templateIcons = {
+    'default': Music2,
+    'empty': FileAudio,
+    'beat': Waves,
+    'synth': Sparkles,
+    'vocal-demo': Mic2,
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0c11] text-white flex flex-col">
@@ -111,7 +126,7 @@ export default function Dashboard() {
 
       {showNew && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-[#141720] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md">
+          <div className="bg-[#141720] border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg">
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
               <h2 className="font-semibold text-white">New Project</h2>
               <button onClick={() => setShowNew(false)} className="text-gray-500 hover:text-white transition-colors"><X size={18} /></button>
@@ -137,15 +152,32 @@ export default function Dashboard() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-2 font-medium">Starting Template</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {[['default','8-Track Template'],['empty','Empty Project']].map(([val, label]) => (
-                    <button key={val} onClick={() => setForm(f => ({ ...f, template: val as 'default' | 'empty' }))}
-                      className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm transition-colors ${
-                        form.template === val ? 'border-cyan-500/50 bg-cyan-500/10 text-cyan-400' : 'border-white/10 bg-white/5 text-gray-400 hover:bg-white/8'}`}>
-                      {form.template === val && <Check size={12} />} {label}
-                    </button>
-                  ))}
+                <label className="block text-xs text-gray-400 mb-2 font-medium">Template</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {PROJECT_TEMPLATES.map(template => {
+                    const Icon = templateIcons[template.id];
+                    const isSelected = form.template === template.id;
+                    return (
+                      <button key={template.id}
+                        onClick={() => setForm(f => ({ ...f, template: template.id }))}
+                        className={`flex items-start gap-3 p-3 rounded-lg border transition-all text-left ${
+                          isSelected ? 'border-cyan-500/50 bg-cyan-500/10' : 'border-white/10 bg-white/5 hover:bg-white/8'
+                        }`}>
+                        <div className={`mt-0.5 ${isSelected ? 'text-cyan-400' : 'text-gray-500'}`}>
+                          <Icon size={18} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm font-medium ${isSelected ? 'text-cyan-400' : 'text-white'}`}>
+                              {template.name}
+                            </span>
+                            {isSelected && <Check size={12} className="text-cyan-400" />}
+                          </div>
+                          <p className="text-[10px] text-gray-500 mt-0.5 line-clamp-2">{template.description}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>

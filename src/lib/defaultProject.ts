@@ -1,4 +1,4 @@
-import { Track } from '../types';
+import { Track, ProjectTemplate, TemplateType } from '../types';
 
 let idCounter = 0;
 const uid = () => `id-${Date.now()}-${idCounter++}`;
@@ -61,4 +61,70 @@ export function createEmptyTrack(name: string, instrumentType: Track['instrument
     automation: [],
     clips: [],
   };
+}
+
+export function createAudioTrack(name: string, color: string): Track {
+  return {
+    id: uid(),
+    name,
+    category: 'MELODIC',
+    instrumentType: 'piano',
+    isAudio: true,
+    color,
+    volume: 75,
+    pan: 50,
+    muted: false,
+    soloed: false,
+    reverbSend: 0,
+    delaySend: 0,
+    distortionSend: 0,
+    attack: 0.01,
+    release: 0.5,
+    filterFreq: 2000,
+    audioClips: [],
+    automation: [],
+    clips: [],
+  };
+}
+
+export function createBeatTemplate(): Track[] {
+  return [
+    createEmptyTrack('Kick', 'kick', 'DRUMS'),
+    createEmptyTrack('Snare', 'snare', 'DRUMS'),
+    createEmptyTrack('Hi-Hat Closed', 'hihat', 'DRUMS'),
+    createEmptyTrack('Hi-Hat Open', 'hihat', 'DRUMS'),
+    createEmptyTrack('Clap', 'snare', 'DRUMS'),
+    createEmptyTrack('808 Bass', 'bass', 'DRUMS'),
+  ].map((t, i) => ({ ...t, color: ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#a855f7'][i] }));
+}
+
+export function createSynthTemplate(): Track[] {
+  return [
+    { ...createEmptyTrack('Pad 1', 'pluck', 'MELODIC'), color: '#3b82f6', reverbSend: 40 },
+    { ...createEmptyTrack('Pad 2', 'piano', 'MELODIC'), color: '#06b6d4', reverbSend: 30, delaySend: 20 },
+    { ...createEmptyTrack('Lead', 'pluck', 'MELODIC'), color: '#a855f7', delaySend: 25 },
+    { ...createEmptyTrack('Arp', 'pluck', 'MELODIC'), color: '#f59e0b' },
+    { ...createEmptyTrack('Drums', 'kick', 'DRUMS'), color: '#ef4444' },
+    { ...createEmptyTrack('Bass', 'bass', 'JAZZ'), color: '#10b981' },
+  ];
+}
+
+export function createVocalDemoTemplate(): Track[] {
+  return [
+    { ...createEmptyTrack('Piano', 'piano', 'MELODIC'), color: '#3b82f6', reverbSend: 25 },
+    { ...createEmptyTrack('Strings', 'piano', 'MELODIC'), color: '#a855f7', reverbSend: 40 },
+    { ...createEmptyTrack('Bass', 'bass', 'JAZZ'), color: '#10b981' },
+    createAudioTrack('Vocalist', '#ef4444'),
+  ];
+}
+
+export function tracksFromTemplate(template: TemplateType): Track[] {
+  switch (template) {
+    case 'default': return createDefaultTracks();
+    case 'empty': return [];
+    case 'beat': return createBeatTemplate();
+    case 'synth': return createSynthTemplate();
+    case 'vocal-demo': return createVocalDemoTemplate();
+    default: return createDefaultTracks();
+  }
 }
