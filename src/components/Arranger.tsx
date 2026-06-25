@@ -1,6 +1,6 @@
-import { useRef } from 'react';
-import { Volume2, VolumeX, X } from 'lucide-react';
-import { Track, Clip } from '../types';
+import { useRef, useState } from 'react';
+import { Volume2, VolumeX, X, Settings, Copy, Trash2, Plus, Repeat } from 'lucide-react';
+import { Track, Clip, LoopRegion } from '../types';
 
 const STEPS_PER_BAR = 16;
 const BEATS_PER_BAR = 4;
@@ -15,6 +15,7 @@ const RESIZE_HANDLE_W = 8;
 
 interface Props {
   tracks: Track[]; loopBars: number; selectedClipId: string | null; currentStep: number;
+  loopRegion: LoopRegion | null; selectedTrackId: string | null;
   onTrackVolumeChange: (trackId: string, vol: number) => void;
   onTrackMuteToggle: (trackId: string) => void;
   onTrackSoloToggle: (trackId: string) => void;
@@ -23,9 +24,16 @@ interface Props {
   onClipMove: (trackId: string, clipId: string, newStartStep: number) => void;
   onClipResize: (trackId: string, clipId: string, newLength: number) => void;
   onClipDelete: (trackId: string, clipId: string) => void;
+  onClipDuplicate: (trackId: string, clipId: string) => void;
+  onTrackSelect: (trackId: string | null) => void;
+  onLoopRegionChange: (region: LoopRegion | null) => void;
 }
 
-export default function Arranger({ tracks, loopBars, selectedClipId, currentStep, onTrackVolumeChange, onTrackMuteToggle, onTrackSoloToggle, onClipSelect, onClipAdd, onClipMove, onClipResize, onClipDelete }: Props) {
+export default function Arranger({
+  tracks, loopBars, selectedClipId, currentStep, loopRegion, selectedTrackId,
+  onTrackVolumeChange, onTrackMuteToggle, onTrackSoloToggle, onClipSelect, onClipAdd, onClipMove, onClipResize, onClipDelete, onClipDuplicate,
+  onTrackSelect, onLoopRegionChange,
+}: Props) {
   const TOTAL_STEPS = loopBars * STEPS_PER_BAR;
   const gridW = Math.max(TOTAL_STEPS * STEP_W, 560);
   const playheadLeft = currentStep >= 0 ? currentStep * STEP_W : -1;
@@ -34,16 +42,30 @@ export default function Arranger({ tracks, loopBars, selectedClipId, currentStep
     <div className="flex flex-col h-full overflow-hidden">
       <div className="flex items-center px-4 py-1.5 border-b border-white/10 shrink-0 bg-[#0d0f14]">
         <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Arranger / Timeline</span>
+        <div className="ml-auto flex items-center gap-2">
+          <button onClick={() => onLoopRegionChange({ startStep: 0, endStep: TOTAL_STEPS })}
+            className={`flex items-center gap-1 px-2 py-1 text-[10px] rounded border transition-colors ${
+              loopRegion ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-400' : 'border-white/10 text-gray-500 hover:text-white'
+            }`}
+            title="Enable loop region">
+            <Repeat size={10} /> Loop
+          </button>
+        </div>
       </div>
       <div className="flex flex-1 overflow-hidden">
         <div className="shrink-0 flex flex-col" style={{ width: HEADER_W }}>
-          <div className="shrink-0 border-b border-r border-white/10 bg-[#0a0c11]" style={{ height: RULER_H }} />
+          <div className="shrink-0 border-b border-r border-white/10 bg-[#0a0c11] flex items-center px-2" style={{ height: RULER_H }}>
+            <button onClick={() => onTrackSelect(null)} className="flex items-center gap-1 px-2 py-1 text-[10px] text-gray-500 hover:text-white border border-white/10 rounded hover:bg-white/5">
+              <Plus size={10} /> Add Track
+            </button>
+          </div>
           <div className="flex-1 overflow-y-hidden">
             {tracks.map(track => (
-              <TrackLabel key={track.id} track={track}
+              <TrackLabel key={track.id} track={track} isSelected={track.id === selectedTrackId}
                 onVolumeChange={v => onTrackVolumeChange(track.id, v)}
                 onMuteToggle={() => onTrackMuteToggle(track.id)}
-                onSoloToggle={() => onTrackSoloToggle(track.id)} />
+                onSoloToggle={() => onTrackSoloToggle(track.id)}
+                onSelect={() => onTrackSelect(track.id)} />
             ))}
           </div>
         </div>
@@ -64,6 +86,9 @@ export default function Arranger({ tracks, loopBars, selectedClipId, currentStep
                 </div>
               ))}
             </div>
+            {loopRegion && (
+              <LoopRegionHandle loopRegion={loopRegion} totalSteps={TOTAL_STEPS} onChange={onLoopRegionChange} />
+            )}
             <div className="relative">
               {tracks.map(track => (
                 <TrackRow key={track.id} track={track} gridW={gridW} totalSteps={TOTAL_STEPS} selectedClipId={selectedClipId}
@@ -71,7 +96,8 @@ export default function Arranger({ tracks, loopBars, selectedClipId, currentStep
                   onClipAdd={step => onClipAdd(track.id, step)}
                   onClipMove={(clipId, step) => onClipMove(track.id, clipId, step)}
                   onClipResize={(clipId, len) => onClipResize(track.id, clipId, len)}
-                  onClipDelete={clipId => onClipDelete(track.id, clipId)} />
+                  onClipDelete={clipId => onClipDelete(track.id, clipId)}
+                  onClipDuplicate={clipId => onClipDuplicate(track.id, clipId)} />
               ))}
               {playheadLeft >= 0 && <div className="absolute top-0 bottom-0 w-0.5 bg-red-500/80 z-30 pointer-events-none" style={{ left: playheadLeft }} />}
             </div>
@@ -82,24 +108,71 @@ export default function Arranger({ tracks, loopBars, selectedClipId, currentStep
   );
 }
 
-function TrackLabel({ track, onVolumeChange, onMuteToggle, onSoloToggle }: { track: Track; onVolumeChange: (v: number) => void; onMuteToggle: () => void; onSoloToggle: () => void }) {
+function LoopRegionHandle({ loopRegion, totalSteps, onChange }: {
+  loopRegion: LoopRegion; totalSteps: number; onChange: (r: LoopRegion | null) => void;
+}) {
+  const startXRef = useRef(0);
+  const startStepRef = useRef(0);
+
+  const handleDrag = (e: React.MouseEvent, type: 'start' | 'end') => {
+    e.stopPropagation();
+    startXRef.current = e.clientX;
+    startStepRef.current = type === 'start' ? loopRegion.startStep : loopRegion.endStep;
+
+    const onMove = (me: MouseEvent) => {
+      const delta = Math.round((me.clientX - startXRef.current) / STEP_W);
+      if (type === 'start') {
+        onChange({ ...loopRegion, startStep: Math.max(0, Math.min(loopRegion.endStep - 1, startStepRef.current + delta)) });
+      } else {
+        onChange({ ...loopRegion, endStep: Math.max(loopRegion.startStep + 1, Math.min(totalSteps, startStepRef.current + delta)) });
+      }
+    };
+    const onUp = () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+    window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onUp);
+  };
+
+  const left = loopRegion.startStep * STEP_W;
+  const width = (loopRegion.endStep - loopRegion.startStep) * STEP_W;
+
   return (
-    <div className="flex flex-col justify-center gap-1 px-2 py-1 border-b border-r border-white/8 bg-[#111318]" style={{ height: TRACK_H }}>
+    <div className="absolute top-0 h-10 z-20 flex items-end pointer-events-none" style={{ left, width }}>
+      <div className="flex-1 bg-cyan-500/20 border-y border-cyan-500/40 pointer-events-none" style={{ height: 36 }} />
+      <div className="absolute left-0 top-0 bottom-4 w-2 cursor-ew-resize bg-cyan-500/40 hover:bg-cyan-500/60 pointer-events-auto"
+        onMouseDown={e => handleDrag(e, 'start')} />
+      <div className="absolute right-0 top-0 bottom-4 w-2 cursor-ew-resize bg-cyan-500/40 hover:bg-cyan-500/60 pointer-events-auto"
+        onMouseDown={e => handleDrag(e, 'end')} />
+    </div>
+  );
+}
+
+function TrackLabel({ track, isSelected, onVolumeChange, onMuteToggle, onSoloToggle, onSelect }: {
+  track: Track; isSelected: boolean;
+  onVolumeChange: (v: number) => void; onMuteToggle: () => void; onSoloToggle: () => void; onSelect: () => void;
+}) {
+  return (
+    <div className={`flex flex-col justify-center gap-1 px-2 py-1 border-b border-r cursor-pointer transition-colors ${isSelected ? 'bg-cyan-500/10 border-cyan-500/30' : 'border-white/8 bg-[#111318] hover:bg-white/5'}`}
+      style={{ height: TRACK_H }} onClick={onSelect}>
       <div className="flex items-center justify-between gap-1">
         <div className="flex items-center gap-1.5 min-w-0">
           <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: track.color }} />
           <span className="text-xs font-medium text-white truncate leading-tight">{track.name}</span>
         </div>
         <div className="flex items-center gap-0.5 shrink-0">
-          <button onClick={onMuteToggle} title="Mute"
+          <button onClick={e => { e.stopPropagation(); onMuteToggle(); }} title="Mute"
             className={`w-5 h-5 rounded text-[9px] font-bold border transition-colors ${track.muted ? 'bg-yellow-500/30 text-yellow-400 border-yellow-500/50' : 'bg-white/5 text-gray-500 border-white/10 hover:text-white'}`}>M</button>
-          <button onClick={onSoloToggle} title="Solo"
+          <button onClick={e => { e.stopPropagation(); onSoloToggle(); }} title="Solo"
             className={`w-5 h-5 rounded text-[9px] font-bold border transition-colors ${track.soloed ? 'bg-emerald-500/30 text-emerald-400 border-emerald-500/50' : 'bg-white/5 text-gray-500 border-white/10 hover:text-white'}`}>S</button>
+          <button onClick={e => { e.stopPropagation(); onSelect(); }} title="Settings"
+            className="w-5 h-5 rounded text-[9px] font-bold border border-white/10 bg-white/5 text-gray-500 hover:text-white transition-colors">
+            <Settings size={10} className="mx-auto" />
+          </button>
         </div>
       </div>
       <div className="flex items-center gap-1.5">
         {track.muted ? <VolumeX size={9} className="text-gray-600 shrink-0" /> : <Volume2 size={9} className="text-gray-500 shrink-0" />}
-        <input type="range" min={0} max={100} value={track.volume} onChange={e => onVolumeChange(Number(e.target.value))}
+        <input type="range" min={0} max={100} value={track.volume}
+          onChange={e => { e.stopPropagation(); onVolumeChange(Number(e.target.value)); }}
+          onClick={e => e.stopPropagation()}
           className="flex-1 h-0.5 cursor-pointer" style={{ accentColor: track.color }} />
         <span className="text-[9px] text-gray-600 w-7 text-right shrink-0">{track.volume}%</span>
       </div>
@@ -107,10 +180,11 @@ function TrackLabel({ track, onVolumeChange, onMuteToggle, onSoloToggle }: { tra
   );
 }
 
-function TrackRow({ track, gridW, totalSteps, selectedClipId, onClipSelect, onClipAdd, onClipMove, onClipResize, onClipDelete }: {
+function TrackRow({ track, gridW, totalSteps, selectedClipId, onClipSelect, onClipAdd, onClipMove, onClipResize, onClipDelete, onClipDuplicate }: {
   track: Track; gridW: number; totalSteps: number; selectedClipId: string | null;
   onClipSelect: (clipId: string) => void; onClipAdd: (step: number) => void;
-  onClipMove: (clipId: string, step: number) => void; onClipResize: (clipId: string, len: number) => void; onClipDelete: (clipId: string) => void;
+  onClipMove: (clipId: string, step: number) => void; onClipResize: (clipId: string, len: number) => void;
+  onClipDelete: (clipId: string) => void; onClipDuplicate: (clipId: string) => void;
 }) {
   const isDraggingRef = useRef(false);
 
@@ -129,8 +203,7 @@ function TrackRow({ track, gridW, totalSteps, selectedClipId, onClipSelect, onCl
 
   const startDrag = (e: React.MouseEvent, clip: Clip) => {
     e.stopPropagation();
-    const startX = e.clientX;
-    const startStep = clip.startStep;
+    const startX = e.clientX; const startStep = clip.startStep;
     isDraggingRef.current = false;
 
     const onMove = (me: MouseEvent) => {
@@ -148,8 +221,7 @@ function TrackRow({ track, gridW, totalSteps, selectedClipId, onClipSelect, onCl
 
   const startResize = (e: React.MouseEvent, clip: Clip) => {
     e.stopPropagation();
-    const startX = e.clientX;
-    const startLen = clip.length;
+    const startX = e.clientX; const startLen = clip.length;
     isDraggingRef.current = true;
     const onMove = (me: MouseEvent) => { const dx = me.clientX - startX; const newLen = Math.max(STEPS_PER_BEAT, startLen + Math.round(dx / STEP_W)); onClipResize(clip.id, newLen); };
     const onUp = () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); setTimeout(() => { isDraggingRef.current = false; }, 50); };
@@ -179,8 +251,12 @@ function TrackRow({ track, gridW, totalSteps, selectedClipId, onClipSelect, onCl
             </div>
             <span className="absolute bottom-1 left-1.5 text-[8px] text-white/50 font-medium pointer-events-none truncate">{track.name}</span>
             {isSelected && (
-              <button className="absolute top-0.5 right-5 w-4 h-4 flex items-center justify-center text-white/40 hover:text-white/90 transition-colors z-20"
-                onMouseDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); onClipDelete(clip.id); }}><X size={9} /></button>
+              <>
+                <button className="absolute top-0.5 right-8 w-4 h-4 flex items-center justify-center text-white/40 hover:text-white/90 transition-colors z-20"
+                  onMouseDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); onClipDuplicate(clip.id); }}><Copy size={8} /></button>
+                <button className="absolute top-0.5 right-4 w-4 h-4 flex items-center justify-center text-white/40 hover:text-white/90 transition-colors z-20"
+                  onMouseDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); onClipDelete(clip.id); }}><X size={9} /></button>
+              </>
             )}
             <div className="absolute right-0 top-0 bottom-0 cursor-ew-resize hover:bg-white/20 transition-colors z-20" style={{ width: RESIZE_HANDLE_W }}
               onMouseDown={e => startResize(e, clip)} onClick={e => e.stopPropagation()} />

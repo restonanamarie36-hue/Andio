@@ -1,17 +1,26 @@
-import { Play, Square, ChevronUp, ChevronDown, Save, FolderOpen, Music2, Undo2, Redo2, Volume2 } from 'lucide-react';
-import { BeatPosition } from '../types';
+import { Play, Square, ChevronUp, ChevronDown, Save, FolderOpen, Music2, Undo2, Redo2, Volume2, Download, Radio, Repeat } from 'lucide-react';
+import { BeatPosition, SnapResolution, LoopRegion } from '../types';
 import * as Tone from 'tone';
+import Metronome from './Metronome';
 
 interface Props {
   isPlaying: boolean; bpm: number; projectName: string; beatPosition: BeatPosition; loopBars: number; masterVolume: number;
-  canUndo: boolean; canRedo: boolean; onPlay: () => void; onStop: () => void; onBpmChange: (bpm: number) => void;
+  canUndo: boolean; canRedo: boolean; metronomeEnabled: boolean; countInBars: number;
+  snapResolution: SnapResolution; loopRegion: LoopRegion | null; hasUnsavedChanges: boolean;
+  onPlay: () => void; onStop: () => void; onBpmChange: (bpm: number) => void;
   onProjectNameChange: (name: string) => void; onSave: () => void; onLoopBarsChange: (bars: number) => void;
   onMasterVolumeChange: (vol: number) => void; onUndo: () => void; onRedo: () => void; isSaving: boolean;
+  onMetronomeToggle: () => void; onCountInChange: (bars: number) => void;
+  onSnapChange: (snap: SnapResolution) => void; onLoopRegionChange: (region: LoopRegion | null) => void;
+  onExport: () => void;
 }
 
 export default function Header({
   isPlaying, bpm, projectName, beatPosition, loopBars, masterVolume, canUndo, canRedo,
-  onPlay, onStop, onBpmChange, onProjectNameChange, onSave, onLoopBarsChange, onMasterVolumeChange, onUndo, onRedo, isSaving,
+  metronomeEnabled, countInBars, snapResolution, loopRegion, hasUnsavedChanges,
+  onPlay, onStop, onBpmChange, onProjectNameChange, onSave, onLoopBarsChange,
+  onMasterVolumeChange, onUndo, onRedo, isSaving,
+  onMetronomeToggle, onCountInChange, onSnapChange, onLoopRegionChange, onExport,
 }: Props) {
   const handleMasterVolChange = (val: number) => {
     onMasterVolumeChange(val);
@@ -25,6 +34,7 @@ export default function Header({
         <Music2 size={18} className="text-cyan-400" />
         <span className="font-bold text-sm tracking-tight hidden sm:block"><span className="text-white">GROOVE</span><span className="text-cyan-400">GRID</span></span>
       </div>
+
       <div className="flex items-center gap-1">
         <button onClick={isPlaying ? onStop : onPlay} title={isPlaying ? 'Stop (Space)' : 'Play (Space)'}
           className={`flex items-center justify-center w-8 h-8 rounded-lg border transition-all ${
@@ -35,9 +45,11 @@ export default function Header({
           <Square size={12} fill="currentColor" />
         </button>
       </div>
+
       <div className="flex items-center gap-0.5 px-2.5 py-1 bg-[#1a1d25] border border-white/10 rounded-lg min-w-[80px]">
         <span className="font-mono text-sm font-bold text-emerald-400">{isPlaying ? `${beatPosition.bar}.${beatPosition.beat}.${beatPosition.sub}` : '—'}</span>
       </div>
+
       <div className="flex items-center gap-1.5 px-2 py-1 bg-[#1a1d25] border border-white/10 rounded-lg">
         <span className="text-[10px] text-gray-500 uppercase tracking-widest">BPM</span>
         <input type="number" value={bpm} min={40} max={240} onChange={e => onBpmChange(Number(e.target.value))}
@@ -47,19 +59,35 @@ export default function Header({
           <button onClick={() => onBpmChange(Math.max(40, bpm - 1))} className="text-gray-500 hover:text-white transition-colors leading-none"><ChevronDown size={10} /></button>
         </div>
       </div>
+
       <div className="flex items-center gap-1.5 px-2 py-1 bg-[#1a1d25] border border-white/10 rounded-lg">
-        <span className="text-[10px] text-gray-500 uppercase tracking-widest">Loop</span>
-        <select value={loopBars} onChange={e => onLoopBarsChange(Number(e.target.value))} className="bg-transparent text-white text-xs font-medium outline-none cursor-pointer">
-          <option value={1}>1 bar</option><option value={2}>2 bars</option><option value={4}>4 bars</option><option value={8}>8 bars</option>
+        <span className="text-[10px] text-gray-500 uppercase tracking-widest">Snap</span>
+        <select value={snapResolution} onChange={e => onSnapChange(e.target.value as any)}
+          className="bg-transparent text-white text-xs font-medium outline-none cursor-pointer">
+          <option value="4n">1/4</option><option value="8n">1/8</option><option value="16n">1/16</option><option value="32n">1/32</option>
         </select>
       </div>
+
+      <metronome enabled={metronomeEnabled} countInBars={countInBars} onToggle={onMetronomeToggle} onCountInChange={onCountInChange} />
+
+      <Metronome enabled={metronomeEnabled} countInBars={countInBars} onToggle={onMetronomeToggle} onCountInChange={onCountInChange} />
+
+      <button onClick={onExport} title="Export Audio"
+        className="flex items-center gap-1 px-2 py-1.5 bg-violet-500/20 border border-violet-500/40 text-violet-400 hover:bg-violet-500/30 rounded-lg text-xs transition-colors">
+        <Download size={12} />
+      </button>
+
       <div className="flex items-center gap-1.5 px-2 py-1 bg-[#1a1d25] border border-white/10 rounded-lg">
         <Volume2 size={12} className="text-gray-500 shrink-0" />
         <input type="range" min={0} max={100} value={masterVolume} onChange={e => handleMasterVolChange(Number(e.target.value))} className="w-16 accent-cyan-400 h-1" />
         <span className="text-[10px] text-gray-500 w-6 text-right">{masterVolume}%</span>
       </div>
+
       <input type="text" value={projectName} onChange={e => onProjectNameChange(e.target.value)}
         className="flex-1 min-w-0 max-w-[160px] bg-[#1a1d25] border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-xs outline-none focus:border-cyan-500/50 transition-colors" />
+
+      {hasUnsavedChanges && <span className="text-[10px] text-amber-400">Unsaved</span>}
+
       <div className="flex items-center gap-1 shrink-0 ml-auto">
         <button onClick={onUndo} disabled={!canUndo} title="Undo (Ctrl+Z)" className="p-1.5 rounded text-gray-500 hover:text-white hover:bg-white/8 disabled:opacity-25 transition-colors"><Undo2 size={14} /></button>
         <button onClick={onRedo} disabled={!canRedo} title="Redo (Ctrl+Y)" className="p-1.5 rounded text-gray-500 hover:text-white hover:bg-white/8 disabled:opacity-25 transition-colors"><Redo2 size={14} /></button>
