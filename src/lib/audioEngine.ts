@@ -3,7 +3,7 @@ import { Track, InstrumentType, normalizeNote, LoopRegion } from '../types';
 import { STEPS_PER_BAR } from './constants';
 import { clampVelocity } from './utils';
 
-type AnyInstrument = Tone.MembraneSynth | Tone.NoiseSynth | Tone.MetalSynth | Tone.PolySynth | Tone.MonoSynth;
+type AnyInstrument = Tone.MembraneSynth | Tone.NoiseSynth | Tone.PolySynth | Tone.MonoSynth;
 
 interface TrackNode {
   instrument: AnyInstrument;
@@ -56,7 +56,7 @@ class AudioEngine {
       case 'snare':
         return new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.18, sustain: 0, release: 0.05 } });
       case 'hihat':
-        return new Tone.MetalSynth({ frequency: 600, envelope: { attack: 0.001, decay: 0.08, release: 0.01 }, harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5 });
+        return new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.08, sustain: 0, release: 0.01 } });
       case 'piano':
         return new Tone.PolySynth(Tone.Synth, { oscillator: { type: 'triangle' }, envelope: { attack: 0.02, decay: 0.8, sustain: 0.4, release: 1.4 } });
       case 'pluck':
@@ -99,10 +99,8 @@ class AudioEngine {
     const inst = track.instrumentType;
     if (inst === 'kick') {
       (node.instrument as Tone.MembraneSynth).triggerAttackRelease('C1', durationSec, time, vel);
-    } else if (inst === 'snare') {
+    } else if (inst === 'snare' || inst === 'hihat') {
       (node.instrument as Tone.NoiseSynth).triggerAttackRelease(durationSec, time, vel);
-    } else if (inst === 'hihat') {
-      (node.instrument as Tone.MetalSynth).triggerAttackRelease(durationSec, time, vel);
     } else {
       const normalized = normalizeNote(pitch);
       (node.instrument as Tone.PolySynth | Tone.MonoSynth).triggerAttackRelease(normalized, durationSec, time, vel);
@@ -132,7 +130,7 @@ class AudioEngine {
       if (!node) return;
       const effectiveMute = track.muted || (hasSoloed && !track.soloed);
       node.volumeNode.volume.value = effectiveMute ? -Infinity : ((track.volume / 100) * 40) - 40;
-      node.panNode.pan.value = ((track.pan ?? 50) / 50) - 1; // 0 = left, 50 = center, 100 = right
+      node.panNode.pan.value = ((track.pan ?? 50) / 50) - 1;
       node.reverbSend.gain.value = (track.reverbSend ?? 0) / 100;
       node.delaySend.gain.value = (track.delaySend ?? 0) / 100;
       node.distortionSend.gain.value = (track.distortionSend ?? 0) / 100;
@@ -147,10 +145,8 @@ class AudioEngine {
     const inst = track.instrumentType;
     if (inst === 'kick') {
       (node.instrument as Tone.MembraneSynth).triggerAttackRelease('C1', '8n', undefined, velocity);
-    } else if (inst === 'snare') {
+    } else if (inst === 'snare' || inst === 'hihat') {
       (node.instrument as Tone.NoiseSynth).triggerAttackRelease('8n', undefined, velocity);
-    } else if (inst === 'hihat') {
-      (node.instrument as Tone.MetalSynth).triggerAttackRelease('8n', undefined, velocity);
     } else {
       const normalized = normalizeNote(pitch);
       (node.instrument as Tone.PolySynth | Tone.MonoSynth).triggerAttackRelease(normalized, '8n', undefined, velocity);
@@ -186,18 +182,28 @@ class AudioEngine {
 
       const step = this.currentStep;
       const hasSoloed = this.tracks.some(t => t.soloed);
+      const notesToTrigger: Array<{track: Track, pitch: string, duration: number, velocity: number, timeOffset: number}> = [];
+      let timeOffset = 0;
 
       this.tracks.forEach(track => {
         if (track.muted || (hasSoloed && !track.soloed)) return;
+        const triggered = new Set<string>();
         track.clips.forEach(clip => {
           if (step < clip.startStep || step >= clip.startStep + clip.length) return;
           const localStep = step - clip.startStep;
           clip.notes.forEach(note => {
-            if (note.step === localStep) {
-              this.triggerNote(track, note.pitch, note.duration, note.velocity ?? 0.8, time);
-            }
+            if (note.step !== localStep) return;
+            const key = `${note.pitch}-${note.duration}`;
+            if (triggered.has(key)) return;
+            triggered.add(key);
+            notesToTrigger.push({track, pitch: note.pitch, duration: note.duration, velocity: note.velocity ?? 0.8, timeOffset: time + timeOffset});
+            timeOffset += 0.02;
           });
         });
+      });
+
+      notesToTrigger.forEach((note) => {
+        this.triggerNote(note.track, note.pitch, note.duration, note.velocity, note.timeOffset);
       });
 
       if (this.metronomeEnabled) {
@@ -230,7 +236,6 @@ class AudioEngine {
 
   setBpm(bpm: number) { Tone.Transport.bpm.value = bpm; }
 
-  // Audio export
   async exportWav(durationBars: number, bpm: number): Promise<Blob | null> {
     const duration = durationBars * (60 / bpm) * 4;
 
@@ -238,18 +243,28 @@ class AudioEngine {
       for (let step = 0; step < durationBars * 16; step++) {
         const time = step * Tone.Time('16n').valueOf();
         const hasSoloed = this.tracks.some(t => t.soloed);
+        const notesToTrigger: Array<{track: Track, pitch: string, duration: number, velocity: number, timeOffset: number}> = [];
+        let timeOffset = 0;
 
         this.tracks.forEach(track => {
           if (track.muted || (hasSoloed && !track.soloed)) return;
+          const triggered = new Set<string>();
           track.clips.forEach(clip => {
             if (step < clip.startStep || step >= clip.startStep + clip.length) return;
             const localStep = step - clip.startStep;
             clip.notes.forEach(note => {
-              if (note.step === localStep) {
-                this.triggerNote(track, note.pitch, note.duration, note.velocity ?? 0.8, time);
-              }
+              if (note.step !== localStep) return;
+              const key = `${note.pitch}-${note.duration}`;
+              if (triggered.has(key)) return;
+              triggered.add(key);
+              notesToTrigger.push({track, pitch: note.pitch, duration: note.duration, velocity: note.velocity ?? 0.8, timeOffset: time + timeOffset});
+              timeOffset += 0.02;
             });
           });
+        });
+
+        notesToTrigger.forEach((note) => {
+          this.triggerNote(note.track, note.pitch, note.duration, note.velocity, note.timeOffset);
         });
       }
     }, duration);
