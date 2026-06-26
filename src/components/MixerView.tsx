@@ -55,7 +55,7 @@ export default function MixerView({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0c11]">
+    <div className="flex flex-col h-full bg-[#16181c]">
       <div className="flex items-center px-4 py-2 border-b border-white/10 shrink-0">
         <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Mixer</span>
       </div>
@@ -78,22 +78,22 @@ export default function MixerView({
         ))}
 
         {/* Master channel */}
-        <div className="flex flex-col w-24 bg-[#141720] border-l border-white/20 shrink-0">
+        <div className="flex flex-col w-24 bg-[#22252b] border-l border-white/20 shrink-0">
           <div className="flex items-center justify-center py-2 border-b border-white/10">
-            <Music size={14} className="text-cyan-400" />
-            <span className="text-[10px] font-bold text-cyan-400 ml-1.5">MASTER</span>
+            <Music size={14} className="text-teal-400" />
+            <span className="text-[10px] font-bold text-teal-400 ml-1.5">MASTER</span>
           </div>
 
           {/* Master meters */}
           <div className="flex gap-0.5 justify-center py-4">
-            <VUMeter level={dbToHeight(masterVolume > 0 ? -10 + (masterVolume / 100) * 20 : -60)} color="cyan" />
-            <VUMeter level={dbToHeight(masterVolume > 0 ? -10 + (masterVolume / 100) * 20 : -60)} color="cyan" />
+            <VUMeter level={dbToHeight(masterVolume > 0 ? -10 + (masterVolume / 100) * 20 : -60)} color="teal" />
+            <VUMeter level={dbToHeight(masterVolume > 0 ? -10 + (masterVolume / 100) * 20 : -60)} color="teal" />
           </div>
 
           {/* Master fader */}
           <div className="flex-1 flex flex-col items-center px-2">
             <div className="relative flex-1 w-2 bg-[#1a1d25] rounded-full overflow-hidden">
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-cyan-500 via-cyan-400 to-cyan-300 rounded-full transition-all"
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-teal-500 via-teal-400 to-teal-300 rounded-full transition-all"
                 style={{ height: `${masterVolume}%` }} />
               <input
                 type="range" min={0} max={100} value={masterVolume}
@@ -129,7 +129,7 @@ function MixerChannel({
   return (
     <div
       className={`flex flex-col w-20 border-r border-white/10 shrink-0 ${
-        isSelected ? 'bg-cyan-500/10' : 'bg-[#111318] hover:bg-white/2'
+        isSelected ? 'bg-teal-500/10' : 'bg-[#22252b] hover:bg-white/2'
       }`}
       onClick={onSelect}
     >

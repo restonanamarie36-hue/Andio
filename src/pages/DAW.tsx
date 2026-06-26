@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Loader2, LayoutGrid, SlidersHorizontal, Activity, Music2, Mic, HelpCircle } from 'lucide-react';
+import { Loader2, LayoutGrid, SlidersHorizontal, Activity, Mic, HelpCircle } from 'lucide-react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Arranger from '../components/Arranger';
@@ -370,11 +370,11 @@ export default function DAW() {
   const selectedClip = selectedTrack?.clips.find(c => c.id === selectedClipId) ?? null;
 
   if (loadingProject) {
-    return <div className="h-screen bg-[#0a0c11] flex items-center justify-center"><Loader2 size={28} className="text-gray-600 animate-spin" /></div>;
+    return <div className="h-screen bg-[#1a1c20] flex items-center justify-center"><Loader2 size={28} className="text-gray-600 animate-spin" /></div>;
   }
 
   return (
-    <div className="flex flex-col h-screen bg-[#0d0f14] text-white overflow-hidden">
+    <div className="flex flex-col h-screen bg-[#1a1c20] text-white overflow-hidden">
       <Header
         isPlaying={isPlaying} bpm={bpm} projectName={projectName} beatPosition={beatPosition} loopBars={loopBars}
         masterVolume={masterVolume} canUndo={canUndo} canRedo={canRedo}
@@ -388,7 +388,7 @@ export default function DAW() {
         onSnapChange={setSnapResolution} onLoopRegionChange={setLoopRegion}
         onExport={() => setShowExportModal(true)} />
 
-      <div className="flex items-center gap-1 px-4 py-1.5 bg-[#0a0c11] border-b border-white/10 shrink-0">
+      <div className="flex items-center gap-1 px-4 py-1.5 bg-[#16181c] border-b border-white/10 shrink-0">
         {([
           { id: 'arranger', icon: LayoutGrid, label: 'Arranger' },
           { id: 'mixer', icon: SlidersHorizontal, label: 'Mixer' },
@@ -397,7 +397,7 @@ export default function DAW() {
           <button key={id}
             onClick={() => setViewMode(id)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded transition-colors ${
-              viewMode === id ? 'bg-cyan-500/20 text-cyan-400' : 'text-gray-500 hover:text-white hover:bg-white/5'
+              viewMode === id ? 'bg-teal-500/20 text-teal-400' : 'text-gray-500 hover:text-white hover:bg-white/5'
             }`}>
             <Icon size={14} />
             <span className="text-xs font-medium">{label}</span>
@@ -414,9 +414,9 @@ export default function DAW() {
           <button
             onClick={() => setShowSampleBrowser(s => !s)}
             className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs transition-colors ${
-              showSampleBrowser ? 'bg-violet-500/20 text-violet-400' : 'text-gray-500 hover:text-white'
+              showSampleBrowser ? 'bg-amber-500/20 text-amber-400' : 'text-gray-500 hover:text-white'
             }`}>
-            <Music2 size={12} />
+            <Activity size={12} />
             Samples
           </button>
           <button

@@ -56,7 +56,7 @@ export default function Sidebar({ onTrackAdd }: Props) {
   const categories: TrackCategory[] = ['DRUMS', 'MELODIC', 'JAZZ'];
 
   return (
-    <aside className="w-56 shrink-0 bg-[#111318] border-r border-white/10 flex flex-col overflow-hidden">
+    <aside className="w-56 shrink-0 bg-[#22252b] border-r border-white/10 flex flex-col overflow-hidden">
       <div className="px-3 py-3 border-b border-white/10">
         <p className="text-xs font-semibold text-gray-300 uppercase tracking-widest mb-2">
           Instruments
@@ -68,7 +68,7 @@ export default function Sidebar({ onTrackAdd }: Props) {
             placeholder="Search sounds..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 bg-[#1a1d25] border border-white/10 rounded-lg text-xs text-white placeholder-gray-600 outline-none focus:border-white/20"
+            className="w-full pl-8 pr-3 py-1.5 bg-[#1a1c20] border border-white/10 rounded-lg text-xs text-white placeholder-gray-600 outline-none focus:border-white/20"
           />
         </div>
       </div>

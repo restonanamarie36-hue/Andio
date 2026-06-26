@@ -54,7 +54,7 @@ export default function ExportModal({ isOpen, onClose, projectName, totalSteps, 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="bg-[#141720] border border-white/10 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+      <div className="bg-[#22252b] border border-white/10 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
           <h2 className="font-semibold text-white">Export Audio</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors" disabled={exporting}>
@@ -70,7 +70,7 @@ export default function ExportModal({ isOpen, onClose, projectName, totalSteps, 
           {exporting && (
             <div className="space-y-2">
               <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full bg-cyan-500 transition-all duration-200" style={{ width: `${progress}%` }} />
+                <div className="h-full bg-teal-500 transition-all duration-200" style={{ width: `${progress}%` }} />
               </div>
               <p className="text-xs text-gray-500 text-center">{progress}% rendered</p>
             </div>
@@ -78,7 +78,7 @@ export default function ExportModal({ isOpen, onClose, projectName, totalSteps, 
 
           {!exporting && (
             <button onClick={handleExport}
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-lg text-sm transition-colors">
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-teal-500 hover:bg-teal-400 text-black font-semibold rounded-lg text-sm transition-colors">
               <Download size={14} />
               Export WAV
             </button>

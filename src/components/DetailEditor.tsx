@@ -164,12 +164,12 @@ export default function DetailEditor({
   ];
 
   return (
-    <div className="flex flex-col bg-[#0a0c11] border-t border-white/10 shrink-0" style={{ height: showVelocityLane ? 320 : 250 }}>
+    <div className="flex flex-col bg-[#16181c] border-t border-white/10 shrink-0" style={{ height: showVelocityLane ? 320 : 250 }}>
       <div className="flex items-center gap-2 px-3 py-1.5 border-b border-white/10 shrink-0">
         <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">
           Piano Roll{track && <span className="normal-case text-gray-600 ml-1.5">— {track.name}</span>}
         </span>
-        <div className="flex items-center gap-0.5 bg-[#1a1d25] rounded-lg p-0.5 ml-2">
+        <div className="flex items-center gap-0.5 bg-[#22252b] rounded-lg p-0.5 ml-2">
           {tools.map(({ id, Icon, label }) => (
             <button key={id} onClick={() => setTool(id)} title={label}
               className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs transition-all ${tool === id ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'}`}>
@@ -191,7 +191,7 @@ export default function DetailEditor({
         )}
         <div className="flex items-center gap-2 ml-auto">
           <span className="text-[10px] text-gray-600">Zoom</span>
-          <input type="range" min={0.5} max={3} step={0.25} value={zoom} onChange={e => setZoom(Number(e.target.value))} className="w-20 accent-cyan-400 h-0.5" />
+          <input type="range" min={0.5} max={3} step={0.25} value={zoom} onChange={e => setZoom(Number(e.target.value))} className="w-20 accent-teal-400 h-0.5" />
         </div>
         <button onClick={onClose} className="ml-1 text-gray-600 hover:text-white transition-colors"><X size={14} /></button>
       </div>
@@ -232,7 +232,7 @@ export default function DetailEditor({
                   <div key={i} className={`absolute top-0 bottom-0 w-px pointer-events-none ${i % 16 === 0 ? 'bg-white/15' : i % 4 === 0 ? 'bg-white/8' : 'bg-white/3'}`}
                     style={{ left: i * colW }} />
                 ))}
-                <div className="absolute top-0 bottom-0 w-0.5 bg-cyan-500/60 pointer-events-none z-20" style={{ left: currentStep * colW }} />
+                <div className="absolute top-0 bottom-0 w-0.5 bg-teal-500/60 pointer-events-none z-20" style={{ left: currentStep * colW }} />
                 {clip.notes.map(note => {
                   const pitchIdx = PIANO_PITCHES.indexOf(note.pitch);
                   if (pitchIdx < 0) return null;

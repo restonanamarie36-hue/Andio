@@ -12,7 +12,7 @@ interface OnboardingHint {
 const ONBOARDING_STEPS: OnboardingHint[] = [
   {
     id: 'welcome',
-    title: 'Welcome to GrooveGrid',
+    title: 'Welcome to Andio',
     description: 'A browser-based digital audio workstation. Create beats, compose melodies, and mix tracks - all in your browser.',
     icon: Sparkles,
   },
@@ -95,16 +95,16 @@ export default function OnboardingPanel() {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="bg-[#141720] border border-white/10 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
         <div className="p-8 text-center">
-          <div className="w-14 h-14 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center mx-auto mb-4">
-            <Icon size={24} className="text-cyan-400" />
+          <div className="w-14 h-14 rounded-2xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center mx-auto mb-4">
+            <Icon size={24} className="text-teal-400" />
           </div>
 
           <h3 className="text-lg font-semibold text-white mb-2">{currentStep.title}</h3>
           <p className="text-sm text-gray-400 mb-4">{currentStep.description}</p>
 
           {currentStep.action && (
-            <div className="px-3 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-lg mb-4">
-              <span className="text-xs text-cyan-400">{currentStep.action}</span>
+            <div className="px-3 py-2 bg-teal-500/10 border border-teal-500/20 rounded-lg mb-4">
+              <span className="text-xs text-teal-400">{currentStep.action}</span>
             </div>
           )}
 
@@ -115,7 +115,7 @@ export default function OnboardingPanel() {
                 key={step.id}
                 onClick={() => setCurrentIndex(i)}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  i === currentIndex ? 'bg-cyan-400 w-4' : i < currentIndex ? 'bg-cyan-500/30' : 'bg-white/20'
+                  i === currentIndex ? 'bg-teal-400 w-4' : i < currentIndex ? 'bg-teal-500/30' : 'bg-white/20'
                 }`}
               />
             ))}
@@ -129,7 +129,7 @@ export default function OnboardingPanel() {
             </button>
             <button
               onClick={handleNext}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-lg text-sm transition-colors">
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-teal-500 hover:bg-teal-400 text-black font-semibold rounded-lg text-sm transition-colors">
               {isLast ? 'Get Started' : 'Next'}
               {!isLast && <ArrowRight size={14} />}
             </button>

@@ -36,7 +36,7 @@ export default function ChordPanel({ rootOctave, onInsertChord, availableSteps, 
   return (
     <div className="bg-[#111318] rounded-lg p-3">
       <div className="flex items-center gap-2 mb-3">
-        <Music size={14} className="text-cyan-400" />
+        <Music size={14} className="text-teal-400" />
         <span className="text-xs font-semibold text-white">Chord Presets</span>
       </div>
 

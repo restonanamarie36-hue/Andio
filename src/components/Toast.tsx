@@ -66,7 +66,7 @@ function ToastItem({ toast, index, onDismiss }: { toast: Toast; index: number; o
   const colors = {
     success: 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400',
     error: 'bg-red-500/20 border-red-500/40 text-red-400',
-    info: 'bg-cyan-500/20 border-cyan-500/40 text-cyan-400',
+    info: 'bg-teal-500/20 border-teal-500/40 text-teal-400',
     warning: 'bg-amber-500/20 border-amber-500/40 text-amber-400',
   };
 

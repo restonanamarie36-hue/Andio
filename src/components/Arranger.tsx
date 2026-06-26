@@ -35,12 +35,12 @@ export default function Arranger({
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="flex items-center px-4 py-1.5 border-b border-white/10 shrink-0 bg-[#0d0f14]">
+      <div className="flex items-center px-4 py-1.5 border-b border-white/10 shrink-0 bg-[#16181c]">
         <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Arranger / Timeline</span>
         <div className="ml-auto flex items-center gap-2">
           <button onClick={() => onLoopRegionChange({ startStep: 0, endStep: TOTAL_STEPS })}
             className={`flex items-center gap-1 px-2 py-1 text-[10px] rounded border transition-colors ${
-              loopRegion ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-400' : 'border-white/10 text-gray-500 hover:text-white'
+              loopRegion ? 'bg-teal-500/20 border-teal-500/40 text-teal-400' : 'border-white/10 text-gray-500 hover:text-white'
             }`}
             title="Enable loop region">
             <Repeat size={10} /> Loop
@@ -49,7 +49,7 @@ export default function Arranger({
       </div>
       <div className="flex flex-1 overflow-hidden">
         <div className="shrink-0 flex flex-col" style={{ width: HEADER_W }}>
-          <div className="shrink-0 border-b border-r border-white/10 bg-[#0a0c11] flex items-center px-2" style={{ height: RULER_H }}>
+          <div className="shrink-0 border-b border-r border-white/10 bg-[#16181c] flex items-center px-2" style={{ height: RULER_H }}>
             <button onClick={() => onTrackSelect(null)} className="flex items-center gap-1 px-2 py-1 text-[10px] text-gray-500 hover:text-white border border-white/10 rounded hover:bg-white/5">
               <Plus size={10} /> Add Track
             </button>
@@ -66,7 +66,7 @@ export default function Arranger({
         </div>
         <div className="flex-1 overflow-x-auto overflow-y-hidden relative">
           <div style={{ width: gridW }}>
-            <div className="relative border-b border-white/10 bg-[#0a0c11] shrink-0 select-none" style={{ height: RULER_H }}>
+            <div className="relative border-b border-white/10 bg-[#16181c] shrink-0 select-none" style={{ height: RULER_H }}>
               {Array.from({ length: loopBars }).map((_, bar) => (
                 <div key={bar} className="absolute top-0 h-full" style={{ left: bar * BAR_W, width: BAR_W }}>
                   <div className="absolute top-0 left-0 h-5 flex items-center px-1.5 border-l border-white/15">
@@ -131,10 +131,10 @@ function LoopRegionHandle({ loopRegion, totalSteps, onChange }: {
 
   return (
     <div className="absolute top-0 h-10 z-20 flex items-end pointer-events-none" style={{ left, width }}>
-      <div className="flex-1 bg-cyan-500/20 border-y border-cyan-500/40 pointer-events-none" style={{ height: 36 }} />
-      <div className="absolute left-0 top-0 bottom-4 w-2 cursor-ew-resize bg-cyan-500/40 hover:bg-cyan-500/60 pointer-events-auto"
+      <div className="flex-1 bg-teal-500/20 border-y border-teal-500/40 pointer-events-none" style={{ height: 36 }} />
+      <div className="absolute left-0 top-0 bottom-4 w-2 cursor-ew-resize bg-teal-500/40 hover:bg-teal-500/60 pointer-events-auto"
         onMouseDown={e => handleDrag(e, 'start')} />
-      <div className="absolute right-0 top-0 bottom-4 w-2 cursor-ew-resize bg-cyan-500/40 hover:bg-cyan-500/60 pointer-events-auto"
+      <div className="absolute right-0 top-0 bottom-4 w-2 cursor-ew-resize bg-teal-500/40 hover:bg-teal-500/60 pointer-events-auto"
         onMouseDown={e => handleDrag(e, 'end')} />
     </div>
   );
@@ -145,7 +145,7 @@ function TrackLabel({ track, isSelected, onVolumeChange, onMuteToggle, onSoloTog
   onVolumeChange: (v: number) => void; onMuteToggle: () => void; onSoloToggle: () => void; onSelect: () => void;
 }) {
   return (
-    <div className={`flex flex-col justify-center gap-1 px-2 py-1 border-b border-r cursor-pointer transition-colors ${isSelected ? 'bg-cyan-500/10 border-cyan-500/30' : 'border-white/8 bg-[#111318] hover:bg-white/5'}`}
+    <div className={`flex flex-col justify-center gap-1 px-2 py-1 border-b border-r cursor-pointer transition-colors ${isSelected ? 'bg-teal-500/10 border-teal-500/30' : 'border-white/8 bg-[#22252b] hover:bg-white/5'}`}
       style={{ height: TRACK_H }} onClick={onSelect}>
       <div className="flex items-center justify-between gap-1">
         <div className="flex items-center gap-1.5 min-w-0">

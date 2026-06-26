@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Music2, Mail, Lock, Eye, EyeOff, ArrowLeft, Loader2, CheckSquare, Square } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, Loader2, CheckSquare, Square } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import Logo from '../components/Logo';
 
 export default function Auth() {
   const [params] = useSearchParams();
@@ -44,12 +45,11 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0c11] flex flex-col">
+    <div className="min-h-screen bg-[#1a1c20] flex flex-col">
       <div className="flex items-center gap-4 px-6 py-4 border-b border-white/8 shrink-0">
         <button onClick={() => navigate('/')} className="flex items-center gap-1.5 text-gray-500 hover:text-white text-sm transition-colors"><ArrowLeft size={14} /> Back</button>
-        <div className="flex items-center gap-2 ml-4">
-          <Music2 size={18} className="text-cyan-400" />
-          <span className="font-bold tracking-tight"><span className="text-white">GROOVE</span><span className="text-cyan-400">GRID</span></span>
+        <div className="ml-4">
+          <Logo size={20} />
         </div>
       </div>
 
@@ -60,10 +60,10 @@ export default function Auth() {
             <p className="text-sm text-gray-500">{tab === 'signin' ? 'Sign in to access your projects.' : 'Free forever. No credit card required.'}</p>
           </div>
 
-          <div className="flex bg-[#1a1d25] rounded-lg p-1 mb-6">
+          <div className="flex bg-[#22252b] rounded-lg p-1 mb-6">
             {(['signin', 'register'] as const).map(t => (
               <button key={t} onClick={() => { setTab(t); setError(''); setSuccess(''); }}
-                className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${tab === t ? 'bg-[#2a2d35] text-white shadow' : 'text-gray-500 hover:text-gray-300'}`}>
+                className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${tab === t ? 'bg-[#2d3038] text-white shadow' : 'text-gray-500 hover:text-gray-300'}`}>
                 {t === 'signin' ? 'Sign In' : 'Register'}
               </button>
             ))}
@@ -78,7 +78,7 @@ export default function Auth() {
               <div className="relative">
                 <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email"
-                  className="w-full pl-9 pr-4 py-2.5 bg-[#1a1d25] border border-white/10 rounded-lg text-white text-sm placeholder-gray-600 outline-none focus:border-cyan-500/50 transition-colors" />
+                  className="w-full pl-9 pr-4 py-2.5 bg-[#22252b] border border-white/10 rounded-lg text-white text-sm placeholder-gray-600 outline-none focus:border-teal-500/50 transition-colors" />
               </div>
             </div>
             <div>
@@ -86,7 +86,7 @@ export default function Auth() {
               <div className="relative">
                 <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                 <input type={showPass ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" autoComplete={tab === 'signin' ? 'current-password' : 'new-password'}
-                  className="w-full pl-9 pr-10 py-2.5 bg-[#1a1d25] border border-white/10 rounded-lg text-white text-sm placeholder-gray-600 outline-none focus:border-cyan-500/50 transition-colors" />
+                  className="w-full pl-9 pr-10 py-2.5 bg-[#22252b] border border-white/10 rounded-lg text-white text-sm placeholder-gray-600 outline-none focus:border-teal-500/50 transition-colors" />
                 <button type="button" onClick={() => setShowPass(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors">
                   {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
@@ -100,7 +100,7 @@ export default function Auth() {
                     type="button"
                     onClick={() => setAgeConfirmed(a => !a)}
                     className={`mt-0.5 shrink-0 w-4 h-4 rounded border flex items-center justify-center transition-colors ${
-                      ageConfirmed ? 'bg-cyan-500 border-cyan-500 text-black' : 'border-white/20 group-hover:border-white/40'
+                      ageConfirmed ? 'bg-teal-500 border-teal-500 text-black' : 'border-white/20 group-hover:border-white/40'
                     }`}
                   >
                     {ageConfirmed && <CheckSquare size={10} />}
@@ -114,30 +114,30 @@ export default function Auth() {
                     type="button"
                     onClick={() => setTermsAccepted(t => !t)}
                     className={`mt-0.5 shrink-0 w-4 h-4 rounded border flex items-center justify-center transition-colors ${
-                      termsAccepted ? 'bg-cyan-500 border-cyan-500 text-black' : 'border-white/20 group-hover:border-white/40'
+                      termsAccepted ? 'bg-teal-500 border-teal-500 text-black' : 'border-white/20 group-hover:border-white/40'
                     }`}
                   >
                     {termsAccepted && <CheckSquare size={10} />}
                   </button>
                   <span className="text-xs text-gray-500 leading-relaxed">
                     I have read and agree to the{' '}
-                    <Link to="/terms" target="_blank" className="text-cyan-400 hover:underline">Terms of Service</Link> and{' '}
-                    <Link to="/privacy" target="_blank" className="text-cyan-400 hover:underline">Privacy Policy</Link>.
+                    <Link to="/terms" target="_blank" className="text-teal-400 hover:underline">Terms of Service</Link> and{' '}
+                    <Link to="/privacy" target="_blank" className="text-teal-400 hover:underline">Privacy Policy</Link>.
                   </span>
                 </label>
               </div>
             )}
 
             <button type="submit" disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-60 text-black font-bold rounded-lg transition-colors">
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-teal-500 hover:bg-teal-400 disabled:opacity-60 text-black font-bold rounded-lg transition-colors">
               {loading && <Loader2 size={14} className="animate-spin" />}
               {tab === 'signin' ? 'Sign In' : 'Create Account'}
             </button>
           </form>
 
           <p className="text-center text-xs text-gray-600 mt-6">
-            {tab === 'signin' ? <>No account? <button className="text-cyan-400 hover:text-cyan-300" onClick={() => { setTab('register'); setError(''); }}>Register free</button></> :
-            <>Already have one? <button className="text-cyan-400 hover:text-cyan-300" onClick={() => { setTab('signin'); setError(''); }}>Sign in</button></>}
+            {tab === 'signin' ? <>No account? <button className="text-teal-400 hover:text-teal-300" onClick={() => { setTab('register'); setError(''); }}>Register free</button></> :
+            <>Already have one? <button className="text-teal-400 hover:text-teal-300" onClick={() => { setTab('signin'); setError(''); }}>Sign in</button></>}
           </p>
         </div>
       </div>

@@ -98,7 +98,7 @@ export default function SampleBrowser({ onDrop, onFileUpload }: Props) {
   };
 
   return (
-    <aside className="w-64 bg-[#111318] border-r border-white/10 flex flex-col shrink-0">
+    <aside className="w-64 bg-[#22252b] border-r border-white/10 flex flex-col shrink-0">
       <div className="px-3 py-2 border-b border-white/10 shrink-0">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Samples</span>
@@ -120,7 +120,7 @@ export default function SampleBrowser({ onDrop, onFileUpload }: Props) {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search samples..."
-            className="w-full pl-7 pr-2 py-1.5 bg-[#1a1d25] border border-white/10 rounded-lg text-white text-xs placeholder-gray-600 outline-none focus:border-cyan-500/50"
+            className="w-full pl-7 pr-2 py-1.5 bg-[#1a1c20] border border-white/10 rounded-lg text-white text-xs placeholder-gray-600 outline-none focus:border-teal-500/50"
           />
         </div>
       </div>
@@ -132,7 +132,7 @@ export default function SampleBrowser({ onDrop, onFileUpload }: Props) {
             key={cat}
             onClick={() => setCategory(cat as any)}
             className={`px-2 py-1 rounded text-[10px] font-medium whitespace-nowrap transition-colors ${
-              category === cat ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'border border-white/10 text-gray-500 hover:text-white'
+              category === cat ? 'bg-teal-500/20 text-teal-400 border border-teal-500/30' : 'border border-white/10 text-gray-500 hover:text-white'
             }`}
           >
             {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -206,7 +206,7 @@ function SampleCard({ sample, isPlaying, onPlay, onDragStart }: {
 }) {
   return (
     <div
-      className="relative bg-[#1a1d25] border border-white/10 rounded-lg overflow-hidden hover:border-white/20 transition-all group cursor-grab active:cursor-grabbing"
+      className="relative bg-[#1a1c20] border border-white/10 rounded-lg overflow-hidden hover:border-white/20 transition-all group cursor-grab active:cursor-grabbing"
       draggable
       onDragStart={onDragStart}
     >
@@ -215,7 +215,7 @@ function SampleCard({ sample, isPlaying, onPlay, onDragStart }: {
         {sample.waveformData?.length > 0 ? (
           <div className="flex items-end justify-center h-full gap-px px-2">
             {sample.waveformData.map((h, i) => (
-              <div key={i} className="w-1 bg-cyan-400/40 rounded-t" style={{ height: `${h * 100}%` }} />
+              <div key={i} className="w-1 bg-teal-400/40 rounded-t" style={{ height: `${h * 100}%` }} />
             ))}
           </div>
         ) : (
@@ -244,7 +244,7 @@ function SampleRow({ sample, isPlaying, onPlay, onDragStart }: {
   const Icon = categoryIcons[sample.category] ?? Music;
   return (
     <div
-      className="flex items-center gap-2 px-2 py-1.5 bg-[#1a1d25] border border-white/10 rounded hover:border-white/20 transition-all cursor-grab active:cursor-grabbing"
+      className="flex items-center gap-2 px-2 py-1.5 bg-[#1a1c20] border border-white/10 rounded hover:border-white/20 transition-all cursor-grab active:cursor-grabbing"
       draggable
       onDragStart={onDragStart}
       onDoubleClick={onPlay}

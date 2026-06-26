@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Music2, Plus, LogOut, Trash2, Clock, Layers, Loader2, AlertCircle, X, Check, FileAudio, Music, Waves, Mic2, Sparkles } from 'lucide-react';
+import { Plus, LogOut, Trash2, Clock, Layers, Loader2, AlertCircle, X, Check, FileAudio, Music, Waves, Mic2, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { SavedProject, PROJECT_TEMPLATES, TemplateType } from '../types';
 import { tracksFromTemplate } from '../lib/defaultProject';
+import Logo from '../components/Logo';
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
@@ -53,7 +54,7 @@ export default function Dashboard() {
 const formatDate = (ts: string) => new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 
   const templateIcons = {
-    'default': Music2,
+    'default': Music,
     'empty': FileAudio,
     'beat': Waves,
     'synth': Sparkles,
@@ -61,11 +62,10 @@ const formatDate = (ts: string) => new Date(ts).toLocaleDateString(undefined, { 
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0c11] text-white flex flex-col">
+    <div className="min-h-screen bg-[#1a1c20] text-white flex flex-col">
       <header className="flex items-center gap-4 px-6 py-3.5 border-b border-white/8 shrink-0">
-        <button onClick={() => navigate('/')} className="flex items-center gap-2">
-          <Music2 size={18} className="text-cyan-400" />
-          <span className="font-bold tracking-tight"><span className="text-white">GROOVE</span><span className="text-cyan-400">GRID</span></span>
+        <button onClick={() => navigate('/')}>
+          <Logo size={20} />
         </button>
         <div className="ml-auto flex items-center gap-3">
           <span className="text-xs text-gray-500 hidden sm:block">{user?.email}</span>
@@ -81,7 +81,7 @@ const formatDate = (ts: string) => new Date(ts).toLocaleDateString(undefined, { 
             <h1 className="text-2xl font-bold text-white">My Projects</h1>
             <p className="text-sm text-gray-500 mt-0.5">{projects.length} project{projects.length !== 1 ? 's' : ''} saved</p>
           </div>
-          <button onClick={() => setShowNew(true)} className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-lg text-sm transition-colors">
+          <button onClick={() => setShowNew(true)} className="flex items-center gap-2 px-4 py-2 bg-teal-500 hover:bg-teal-400 text-black font-semibold rounded-lg text-sm transition-colors">
             <Plus size={15} /> New Project
           </button>
         </div>
@@ -90,10 +90,10 @@ const formatDate = (ts: string) => new Date(ts).toLocaleDateString(undefined, { 
           <div className="flex items-center justify-center py-24"><Loader2 size={24} className="text-gray-600 animate-spin" /></div>
         ) : projects.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-[#1a1d25] border border-white/10 flex items-center justify-center mb-4"><Music2 size={28} className="text-gray-600" /></div>
+            <div className="w-16 h-16 rounded-2xl bg-[#22252b] border border-white/10 flex items-center justify-center mb-4"><Music size={28} className="text-gray-600" /></div>
             <h3 className="font-semibold text-white mb-1">No projects yet</h3>
             <p className="text-sm text-gray-500 mb-6">Create your first project to get started.</p>
-            <button onClick={() => setShowNew(true)} className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-lg text-sm transition-colors">
+            <button onClick={() => setShowNew(true)} className="flex items-center gap-2 px-4 py-2 bg-teal-500 hover:bg-teal-400 text-black font-semibold rounded-lg text-sm transition-colors">
               <Plus size={14} /> Create Project
             </button>
           </div>
@@ -101,7 +101,7 @@ const formatDate = (ts: string) => new Date(ts).toLocaleDateString(undefined, { 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {projects.map(project => (
               <div key={project.id}
-                className="group relative bg-[#111318] border border-white/8 rounded-xl p-5 hover:border-white/20 hover:bg-[#141720] transition-all cursor-pointer"
+                className="group relative bg-[#22252b] border border-white/8 rounded-xl p-5 hover:border-white/20 hover:bg-[#2a2d34] transition-all cursor-pointer"
                 onClick={() => navigate(`/project/${project.id}`)}>
                 <div className="flex gap-0.5 mb-4">
                   {(project.data?.tracks ?? []).slice(0, 8).map((t, i) => (
@@ -126,7 +126,7 @@ const formatDate = (ts: string) => new Date(ts).toLocaleDateString(undefined, { 
 
       {showNew && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-[#141720] border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg">
+          <div className="bg-[#22252b] border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg">
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
               <h2 className="font-semibold text-white">New Project</h2>
               <button onClick={() => setShowNew(false)} className="text-gray-500 hover:text-white transition-colors"><X size={18} /></button>
@@ -135,18 +135,18 @@ const formatDate = (ts: string) => new Date(ts).toLocaleDateString(undefined, { 
               <div>
                 <label className="block text-xs text-gray-400 mb-1.5 font-medium">Project Name</label>
                 <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  className="w-full px-3 py-2.5 bg-[#1a1d25] border border-white/10 rounded-lg text-white text-sm outline-none focus:border-cyan-500/50 transition-colors" />
+                  className="w-full px-3 py-2.5 bg-[#1a1c20] border border-white/10 rounded-lg text-white text-sm outline-none focus:border-teal-500/50 transition-colors" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs text-gray-400 mb-1.5 font-medium">BPM</label>
                   <input type="number" value={form.bpm} min={40} max={240} onChange={e => setForm(f => ({ ...f, bpm: Number(e.target.value) }))}
-                    className="w-full px-3 py-2.5 bg-[#1a1d25] border border-white/10 rounded-lg text-white text-sm outline-none focus:border-cyan-500/50 transition-colors" />
+                    className="w-full px-3 py-2.5 bg-[#1a1c20] border border-white/10 rounded-lg text-white text-sm outline-none focus:border-teal-500/50 transition-colors" />
                 </div>
                 <div>
                   <label className="block text-xs text-gray-400 mb-1.5 font-medium">Loop Length</label>
                   <select value={form.loopBars} onChange={e => setForm(f => ({ ...f, loopBars: Number(e.target.value) }))}
-                    className="w-full px-3 py-2.5 bg-[#1a1d25] border border-white/10 rounded-lg text-white text-sm outline-none focus:border-cyan-500/50 transition-colors">
+                    className="w-full px-3 py-2.5 bg-[#1a1c20] border border-white/10 rounded-lg text-white text-sm outline-none focus:border-teal-500/50 transition-colors">
                     <option value={1}>1 bar</option><option value={2}>2 bars</option><option value={4}>4 bars</option><option value={8}>8 bars</option>
                   </select>
                 </div>
@@ -161,17 +161,17 @@ const formatDate = (ts: string) => new Date(ts).toLocaleDateString(undefined, { 
                       <button key={template.id}
                         onClick={() => setForm(f => ({ ...f, template: template.id }))}
                         className={`flex items-start gap-3 p-3 rounded-lg border transition-all text-left ${
-                          isSelected ? 'border-cyan-500/50 bg-cyan-500/10' : 'border-white/10 bg-white/5 hover:bg-white/8'
+                          isSelected ? 'border-teal-500/50 bg-teal-500/10' : 'border-white/10 bg-white/5 hover:bg-white/8'
                         }`}>
-                        <div className={`mt-0.5 ${isSelected ? 'text-cyan-400' : 'text-gray-500'}`}>
+                        <div className={`mt-0.5 ${isSelected ? 'text-teal-400' : 'text-gray-500'}`}>
                           <Icon size={18} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className={`text-sm font-medium ${isSelected ? 'text-cyan-400' : 'text-white'}`}>
+                            <span className={`text-sm font-medium ${isSelected ? 'text-teal-400' : 'text-white'}`}>
                               {template.name}
                             </span>
-                            {isSelected && <Check size={12} className="text-cyan-400" />}
+                            {isSelected && <Check size={12} className="text-teal-400" />}
                           </div>
                           <p className="text-[10px] text-gray-500 mt-0.5 line-clamp-2">{template.description}</p>
                         </div>
@@ -184,7 +184,7 @@ const formatDate = (ts: string) => new Date(ts).toLocaleDateString(undefined, { 
             <div className="flex gap-3 px-6 pb-6">
               <button onClick={() => setShowNew(false)} className="flex-1 py-2.5 border border-white/10 rounded-lg text-sm text-gray-400 hover:text-white transition-colors">Cancel</button>
               <button onClick={createProject} disabled={creating}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-lg text-sm transition-colors disabled:opacity-60">
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-teal-500 hover:bg-teal-400 text-black font-semibold rounded-lg text-sm transition-colors disabled:opacity-60">
                 {creating && <Loader2 size={13} className="animate-spin" />} Create & Open
               </button>
             </div>
@@ -194,7 +194,7 @@ const formatDate = (ts: string) => new Date(ts).toLocaleDateString(undefined, { 
 
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-[#141720] border border-white/10 rounded-xl shadow-2xl w-full max-w-xs p-6 text-center">
+          <div className="bg-[#22252b] border border-white/10 rounded-xl shadow-2xl w-full max-w-xs p-6 text-center">
             <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4"><AlertCircle size={20} className="text-red-400" /></div>
             <h3 className="font-semibold text-white mb-1">Delete project?</h3>
             <p className="text-sm text-gray-500 mb-6">This cannot be undone.</p>

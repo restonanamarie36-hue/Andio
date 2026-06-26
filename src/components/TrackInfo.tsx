@@ -32,7 +32,7 @@ export default function TrackInfo({ track, onClose, onUpdate, onDelete, onDuplic
   };
 
   return (
-    <div className="absolute right-0 top-0 bottom-0 w-72 bg-[#111318] border-l border-white/10 flex flex-col z-20 overflow-y-auto">
+    <div className="absolute right-0 top-0 bottom-0 w-72 bg-[#22252b] border-l border-white/10 flex flex-col z-20 overflow-y-auto">
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
         <h3 className="text-xs font-semibold text-white">Track Settings</h3>
         <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors"><X size={14} /></button>
@@ -43,7 +43,7 @@ export default function TrackInfo({ track, onClose, onUpdate, onDelete, onDuplic
           <div className="flex items-center gap-2">
             <input type="text" value={nameInput} onChange={e => setNameInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') setEditingName(false); }}
-              className="flex-1 px-2 py-1.5 bg-[#1a1d25] border border-white/10 rounded text-white text-xs outline-none focus:border-cyan-500/50"
+              className="flex-1 px-2 py-1.5 bg-[#1a1c20] border border-white/10 rounded text-white text-xs outline-none focus:border-teal-500/50"
               autoFocus />
             <button onClick={handleSaveName} className="text-cyan-400 hover:text-cyan-300"><Check size={14} /></button>
           </div>
@@ -60,7 +60,7 @@ export default function TrackInfo({ track, onClose, onUpdate, onDelete, onDuplic
         {(['general', 'effects', 'color'] as const).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`flex-1 py-2 text-[10px] font-semibold uppercase tracking-wider transition-colors ${
-              tab === t ? 'text-cyan-400 border-b-2 border-cyan-400 bg-cyan-400/5' : 'text-gray-500 hover:text-gray-300'
+              tab === t ? 'text-teal-400 border-b-2 border-teal-400 bg-teal-400/5' : 'text-gray-500 hover:text-gray-300'
             }`}>
             {t}
           </button>
@@ -77,7 +77,7 @@ export default function TrackInfo({ track, onClose, onUpdate, onDelete, onDuplic
                   const opt = INSTRUMENT_OPTIONS.find(o => o.type === e.target.value);
                   if (opt) onUpdate({ instrumentType: opt.type, category: opt.category });
                 }}
-                className="w-full px-2 py-1.5 bg-[#1a1d25] border border-white/10 rounded text-white text-xs outline-none focus:border-cyan-500/50">
+                className="w-full px-2 py-1.5 bg-[#1a1c20] border border-white/10 rounded text-white text-xs outline-none focus:border-teal-500/50">
                 {INSTRUMENT_OPTIONS.map(opt => <option key={opt.type} value={opt.type}>{opt.name}</option>)}
               </select>
             </div>
@@ -97,7 +97,7 @@ export default function TrackInfo({ track, onClose, onUpdate, onDelete, onDuplic
                 <span className="text-[9px] text-gray-500">L</span>
                 <input type="range" min={0} max={100} value={track.pan ?? 50}
                   onChange={e => onUpdate({ pan: Number(e.target.value) })}
-                  className="flex-1 h-1 accent-cyan-400" />
+                  className="flex-1 h-1 accent-teal-400" />
                 <span className="text-[9px] text-gray-500">R</span>
               </div>
             </div>

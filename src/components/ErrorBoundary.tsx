@@ -42,8 +42,8 @@ export default function ErrorBoundary({ children }: ErrorBoundaryProps) {
 
   if (state.hasError) {
     return (
-      <div className="min-h-screen bg-[#0a0c11] flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-[#141720] border border-white/10 rounded-2xl p-8 text-center">
+      <div className="min-h-screen bg-[#1a1c20] flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-[#22252b] border border-white/10 rounded-2xl p-8 text-center">
           <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-6">
             <AlertCircle size={28} className="text-red-400" />
           </div>
@@ -56,7 +56,7 @@ export default function ErrorBoundary({ children }: ErrorBoundaryProps) {
               <summary className="text-xs text-gray-600 cursor-pointer hover:text-gray-500">
                 View error details
               </summary>
-              <pre className="mt-2 p-3 bg-[#0a0c11] rounded-lg text-[10px] text-red-400/80 overflow-auto max-h-32">
+              <pre className="mt-2 p-3 bg-[#16181c] rounded-lg text-[10px] text-red-400/80 overflow-auto max-h-32">
                 {state.error.message}
                 {'\n\n'}
                 {state.error.stack}
@@ -65,7 +65,7 @@ export default function ErrorBoundary({ children }: ErrorBoundaryProps) {
           )}
           <button
             onClick={handleRetry}
-            className="flex items-center justify-center gap-2 mx-auto px-6 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-lg text-sm transition-colors">
+            className="flex items-center justify-center gap-2 mx-auto px-6 py-2.5 bg-teal-500 hover:bg-teal-400 text-black font-semibold rounded-lg text-sm transition-colors">
             <RefreshCw size={14} />
             Refresh Page
           </button>

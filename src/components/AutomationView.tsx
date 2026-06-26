@@ -22,7 +22,7 @@ export default function AutomationView({
 
   if (!track) {
     return (
-      <div className="flex flex-col h-48 bg-[#0a0c11] border-t border-white/10">
+      <div className="flex flex-col h-48 bg-[#16181c] border-t border-white/10">
         <div className="flex items-center px-4 py-2 border-b border-white/10 shrink-0">
           <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Automation</span>
         </div>
@@ -104,10 +104,10 @@ export default function AutomationView({
   }
 
   return (
-    <div className="flex flex-col bg-[#0a0c11] border-t border-white/10 shrink-0" style={{ height: 192 }}>
+    <div className="flex flex-col bg-[#16181c] border-t border-white/10 shrink-0" style={{ height: 192 }}>
       <div className="flex items-center gap-3 px-4 py-2 border-b border-white/10 shrink-0">
         <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Automation</span>
-        <div className="flex items-center gap-1 bg-[#1a1d25] rounded-lg p-0.5">
+        <div className="flex items-center gap-1 bg-[#22252b] rounded-lg p-0.5">
           {(['volume', 'pan', 'filter'] as AutomationType[]).map(type => (
             <button
               key={type}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Music, Music2, FileAudio, Play, HelpCircle, Sparkles } from 'lucide-react';
+import { Music, FileAudio, Play, HelpCircle, Sparkles } from 'lucide-react';
 
 interface EmptyStateProps {
   type: 'timeline' | 'piano-roll' | 'mixer' | 'samples' | 'projects';
@@ -9,7 +9,7 @@ interface EmptyStateProps {
 
 const EMPTY_STATES: Record<string, { icon: typeof Music; title: string; description: string; tip: string }> = {
   'timeline': {
-    icon: Music2,
+    icon: FileAudio,
     title: 'No clips yet',
     description: 'Double-click on a track to create a clip and start composing.',
     tip: 'Tip: Press Space to play/stop playback'
@@ -47,7 +47,7 @@ export default function EmptyState({ type, onAction, actionLabel }: EmptyStatePr
 
   return (
     <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-[#1a1d25] border border-white/10 flex items-center justify-center mb-4">
+      <div className="w-16 h-16 rounded-2xl bg-[#22252b] border border-white/10 flex items-center justify-center mb-4">
         <Icon size={28} className="text-gray-600" />
       </div>
       <h3 className="text-base font-semibold text-white mb-1">{state.title}</h3>
@@ -56,7 +56,7 @@ export default function EmptyState({ type, onAction, actionLabel }: EmptyStatePr
       {onAction && (
         <button
           onClick={onAction}
-          className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-lg text-sm transition-colors mb-4"
+          className="flex items-center gap-2 px-4 py-2 bg-teal-500 hover:bg-teal-400 text-black font-semibold rounded-lg text-sm transition-colors mb-4"
         >
           {actionLabel || 'Get Started'}
         </button>
@@ -66,7 +66,7 @@ export default function EmptyState({ type, onAction, actionLabel }: EmptyStatePr
         onClick={() => setShowTip(!showTip)}
         className="flex items-center gap-1.5 text-xs text-gray-600 hover:text-gray-500 transition-colors group"
       >
-        <HelpCircle size={12} className="group-hover:text-cyan-500" />
+        <HelpCircle size={12} className="group-hover:text-teal-500" />
         {showTip ? state.tip : 'Show tip'}
       </button>
     </div>

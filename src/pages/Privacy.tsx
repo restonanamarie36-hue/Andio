@@ -31,8 +31,8 @@ export default function Privacy() {
   const sectionIconSize = 18;
 
   return (
-    <div className="min-h-screen bg-[#0a0c11] text-gray-300">
-      <header className="border-b border-white/10 bg-[#0d0f14]/95 backdrop-blur-sm sticky top-0 z-40">
+    <div className="min-h-screen bg-[#1a1c20] text-gray-300">
+      <header className="border-b border-white/10 bg-[#16181c]/95 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <ArrowLeft size={16} />
@@ -44,8 +44,8 @@ export default function Privacy() {
 
       <main className="max-w-4xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
-          <div className="w-16 h-16 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center mx-auto mb-4">
-            <Shield size={28} className="text-cyan-400" />
+          <div className="w-16 h-16 rounded-2xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center mx-auto mb-4">
+            <Shield size={28} className="text-teal-400" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Privacy Policy</h1>
           <p className="text-gray-500">How we collect, use, and protect your data</p>
@@ -54,12 +54,12 @@ export default function Privacy() {
         <div className="space-y-10">
           <section>
             <div className="flex items-center gap-3 mb-4">
-              <Lock size={sectionIconSize} className="text-cyan-400" />
+              <Lock size={sectionIconSize} className="text-teal-400" />
               <h2 className="text-xl font-semibold text-white">Data Collection</h2>
             </div>
             <div className="prose prose-invert max-w-none">
               <p className="mb-4">
-                GrooveGrid collects the following personal data when you sign in with Google:
+                Andio collects the following personal data when you sign in with Google:
               </p>
               <ul className="list-disc pl-5 space-y-2 text-gray-400">
                 <li><strong>Account Information:</strong> Name, email address, and profile picture from your Google account</li>
@@ -72,7 +72,7 @@ export default function Privacy() {
 
           <section>
             <div className="flex items-center gap-3 mb-4">
-              <Eye size={sectionIconSize} className="text-cyan-400" />
+              <Eye size={sectionIconSize} className="text-teal-400" />
               <h2 className="text-xl font-semibold text-white">How We Use Your Data</h2>
             </div>
             <div className="prose prose-invert max-w-none">
@@ -94,14 +94,14 @@ export default function Privacy() {
 
           <section>
             <div className="flex items-center gap-3 mb-4">
-              <Globe size={sectionIconSize} className="text-cyan-400" />
+              <Globe size={sectionIconSize} className="text-teal-400" />
               <h2 className="text-xl font-semibold text-white">International Data Transfers</h2>
             </div>
             <div className="prose prose-invert max-w-none">
               <p className="text-gray-400">
-                Your data may be processed and stored on servers located in the United States. By using GrooveGrid, you consent to the transfer of your data to the U.S. and other jurisdictions where our service providers operate. We implement appropriate safeguards including Standard Contractual Clauses (SCCs) for EU data transfers.
+                Your data may be processed and stored on servers located in the United States. By using Andio, you consent to the transfer of your data to the U.S. and other jurisdictions where our service providers operate. We implement appropriate safeguards including Standard Contractual Clauses (SCCs) for EU data transfers.
               </p>
-              <div className="mt-4 p-4 bg-[#141720] border border-white/10 rounded-lg">
+              <div className="mt-4 p-4 bg-[#22252b] border border-white/10 rounded-lg">
                 <p className="text-sm text-gray-500">
                   <strong className="text-gray-400">Philippines Users:</strong> In compliance with the Data Privacy Act of 2012 (RA 10173), we maintain appropriate security measures and will notify the National Privacy Commission of any data breach affecting personal data within 72 hours of discovery.
                 </p>
@@ -111,7 +111,7 @@ export default function Privacy() {
 
           <section>
             <div className="flex items-center gap-3 mb-4">
-              <Cookie size={sectionIconSize} className="text-cyan-400" />
+              <Cookie size={sectionIconSize} className="text-teal-400" />
               <h2 className="text-xl font-semibold text-white">Cookies & Tracking</h2>
             </div>
             <div className="prose prose-invert max-w-none">
@@ -146,7 +146,7 @@ export default function Privacy() {
                   { title: 'Objection', desc: 'Object to processing for marketing purposes' },
                   { title: 'Withdrawal', desc: 'Withdraw consent at any time' },
                 ].map((right) => (
-                  <div key={right.title} className="p-3 bg-[#141720] border border-white/10 rounded-lg">
+                  <div key={right.title} className="p-3 bg-[#22252b] border border-white/10 rounded-lg">
                     <h4 className="font-medium text-white text-sm">{right.title}</h4>
                     <p className="text-xs text-gray-500 mt-1">{right.desc}</p>
                   </div>
@@ -206,7 +206,7 @@ export default function Privacy() {
                 </div>
               ) : (
                 <p className="text-sm text-gray-500">
-                  <Link to="/auth" className="text-cyan-400 hover:underline">Sign in</Link> to manage your account data.
+                  <Link to="/auth" className="text-teal-400 hover:underline">Sign in</Link> to manage your account data.
                 </p>
               )}
             </div>
@@ -214,15 +214,15 @@ export default function Privacy() {
 
           <section>
             <div className="flex items-center gap-3 mb-4">
-              <Mail size={sectionIconSize} className="text-cyan-400" />
+              <Mail size={sectionIconSize} className="text-teal-400" />
               <h2 className="text-xl font-semibold text-white">Data Protection Officer</h2>
             </div>
             <div className="prose prose-invert max-w-none">
               <p className="text-gray-400 mb-4">
                 For questions about your personal data or to exercise your rights, contact us:
               </p>
-              <div className="p-4 bg-[#141720] border border-white/10 rounded-lg">
-                <p><strong className="text-white">Email:</strong> privacy@groovegrid.app</p>
+              <div className="p-4 bg-[#22252b] border border-white/10 rounded-lg">
+                <p><strong className="text-white">Email:</strong> privacy@andio.app</p>
               </div>
               <p className="mt-4 text-sm text-gray-500">
                 We will respond to all requests within 30 days as required by law.
@@ -233,7 +233,7 @@ export default function Privacy() {
           <section className="border-t border-white/10 pt-8">
             <h2 className="text-lg font-semibold text-white mb-4">Children's Privacy (COPPA, GDPR Article 8)</h2>
             <p className="text-gray-400">
-              GrooveGrid is not intended for users under 13 years of age (or 16 in certain EU countries). We do not knowingly collect personal information from children. If you believe a child under the age limit has provided us with personal information, please contact us immediately, and we will delete their data.
+              Andio is not intended for users under 13 years of age (or 16 in certain EU countries). We do not knowingly collect personal information from children. If you believe a child under the age limit has provided us with personal information, please contact us immediately, and we will delete their data.
             </p>
           </section>
         </div>
@@ -245,7 +245,7 @@ export default function Privacy() {
             <Link to="/terms" className="hover:text-gray-400 transition-colors">Terms of Service</Link>
             <Link to="/privacy" className="hover:text-gray-400 transition-colors">Privacy Policy</Link>
           </div>
-          <p>© 2026 GrooveGrid. All rights reserved.</p>
+          <p>© 2026 Andio. All rights reserved.</p>
         </div>
       </footer>
     </div>

@@ -93,7 +93,7 @@ export default function AudioRecorder({ onRecordComplete, onClose }: AudioRecord
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="bg-[#141720] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+      <div className="bg-[#22252b] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
           <h2 className="font-semibold text-white">Record Audio</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors">
