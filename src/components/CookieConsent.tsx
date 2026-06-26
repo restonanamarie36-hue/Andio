@@ -64,7 +64,7 @@ export default function CookieConsent() {
             </div>
           </div>
           <button
-            onClick={() => setIsVisible(false)}
+            onClick={acceptEssential}
             className="text-gray-600 hover:text-white transition-colors shrink-0"
           >
             <X size={18} />

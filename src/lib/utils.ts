@@ -49,7 +49,8 @@ export function formatDuration(seconds: number): string {
  * Generate a sanitized filename from project name
  */
 export function sanitizeFilename(name: string): string {
-  return name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_-]/g, '');
+  const sanitized = name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_-]/g, '');
+  return sanitized || 'untitled';
 }
 
 /**
