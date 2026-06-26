@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 
 interface TooltipProps {
   content: string;
@@ -20,36 +20,37 @@ export default function Tooltip({ content, children, position = 'top', delay = 4
     };
   }, []);
 
-  const show = () => {
-    timeoutRef.current = window.setTimeout(() => {
-      if (triggerRef.current && tooltipRef.current) {
-        const triggerRect = triggerRef.current.getBoundingClientRect();
-        const tooltipRect = tooltipRef.current.getBoundingClientRect();
-        let top = 0, left = 0;
-        const gap = 6;
+  useLayoutEffect(() => {
+    if (isVisible && triggerRef.current && tooltipRef.current) {
+      const triggerRect = triggerRef.current.getBoundingClientRect();
+      const tooltipRect = tooltipRef.current.getBoundingClientRect();
+      let top = 0, left = 0;
+      const gap = 6;
 
-        switch (position) {
-          case 'top':
-            top = triggerRect.top - tooltipRect.height - gap;
-            left = triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
-            break;
-          case 'bottom':
-            top = triggerRect.bottom + gap;
-            left = triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
-            break;
-          case 'left':
-            top = triggerRect.top + (triggerRect.height - tooltipRect.height) / 2;
-            left = triggerRect.left - tooltipRect.width - gap;
-            break;
-          case 'right':
-            top = triggerRect.top + (triggerRect.height - tooltipRect.height) / 2;
-            left = triggerRect.right + gap;
-            break;
-        }
-        setCoords({ top, left });
+      switch (position) {
+        case 'top':
+          top = triggerRect.top - tooltipRect.height - gap;
+          left = triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
+          break;
+        case 'bottom':
+          top = triggerRect.bottom + gap;
+          left = triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
+          break;
+        case 'left':
+          top = triggerRect.top + (triggerRect.height - tooltipRect.height) / 2;
+          left = triggerRect.left - tooltipRect.width - gap;
+          break;
+        case 'right':
+          top = triggerRect.top + (triggerRect.height - tooltipRect.height) / 2;
+          left = triggerRect.right + gap;
+          break;
       }
-      setIsVisible(true);
-    }, delay);
+      setCoords({ top, left });
+    }
+  }, [isVisible, position]);
+
+  const show = () => {
+    timeoutRef.current = window.setTimeout(() => setIsVisible(true), delay);
   };
 
   const hide = () => {
@@ -69,7 +70,7 @@ export default function Tooltip({ content, children, position = 'top', delay = 4
         <div
           ref={tooltipRef}
           style={{ top: coords.top, left: coords.left }}
-          className={`fixed z-[200] px-2 py-1 bg-[#1a1d25] border border-white/20 rounded text-[10px] text-gray-300 whitespace-nowrap pointer-events-none animate-in fade-in-0 zoom-in-95 ${position === 'top' ? 'slide-in-from-bottom-1' : position === 'bottom' ? 'slide-in-from-top-1' : position === 'left' ? 'slide-in-from-right-1' : 'slide-in-from-left-1'}`}
+          className={`fixed z-[200] px-2 py-1 bg-[#22252b] border border-white/20 rounded text-[10px] text-gray-300 whitespace-nowrap pointer-events-none animate-in fade-in-0 zoom-in-95 ${position === 'top' ? 'slide-in-from-bottom-1' : position === 'bottom' ? 'slide-in-from-top-1' : position === 'left' ? 'slide-in-from-right-1' : 'slide-in-from-left-1'}`}
         >
           {content}
         </div>

@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [showNew, setShowNew] = useState(false);
+  const [createError, setCreateError] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: 'My New Project',
@@ -26,8 +27,9 @@ export default function Dashboard() {
 
   async function loadProjects() {
     setLoading(true);
-    const { data, error } = await supabase.from('projects').select('*').order('updated_at', { ascending: false });
-    if (!error) setProjects((data ?? []) as SavedProject[]);
+    const { data, error } = await supabase.from('projects').select('*').eq('user_id', user?.id ?? '').order('updated_at', { ascending: false });
+    if (error) console.error('Failed to load projects:', error);
+    setProjects((data ?? []) as SavedProject[]);
     setLoading(false);
   }
 
@@ -42,11 +44,13 @@ export default function Dashboard() {
       user_id: user.id,
     }).select('id').single();
     setCreating(false);
-    if (!error && data) navigate(`/project/${data.id}`);
+    if (error) { setCreateError(error.message); return; }
+    if (data) navigate(`/project/${data.id}`);
   }
 
   async function deleteProject(id: string) {
-    await supabase.from('projects').delete().eq('id', id);
+    const { error } = await supabase.from('projects').delete().eq('id', id);
+    if (error) { setDeleteId(null); return; }
     setProjects(ps => ps.filter(p => p.id !== id));
     setDeleteId(null);
   }
@@ -181,6 +185,7 @@ const formatDate = (ts: string) => new Date(ts).toLocaleDateString(undefined, { 
                 </div>
               </div>
             </div>
+            {createError && <p className="px-6 pb-2 text-xs text-red-400">{createError}</p>}
             <div className="flex gap-3 px-6 pb-6">
               <button onClick={() => setShowNew(false)} className="flex-1 py-2.5 border border-white/10 rounded-lg text-sm text-gray-400 hover:text-white transition-colors">Cancel</button>
               <button onClick={createProject} disabled={creating}

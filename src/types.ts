@@ -138,17 +138,17 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
   { id: 'vocal-demo', name: 'Vocal Demo', description: 'Piano + strings with space for vocal recording.', bpm: 140, bars: 8 },
 ];
 
-export const PRESET_CHORDS: Record<string, string[]> = {
-  'Major': ['C', 'E', 'G'],
-  'Minor': ['C', 'D#', 'G'],
-  'Dim': ['C', 'D#', 'F#'],
-  'Aug': ['C', 'E', 'G#'],
-  'Maj7': ['C', 'E', 'G', 'B'],
-  'Min7': ['C', 'D#', 'G', 'A#'],
-  'Dom7': ['C', 'E', 'G', 'A#'],
-  'Sus2': ['C', 'D', 'G'],
-  'Sus4': ['C', 'F', 'G'],
-  'Add9': ['C', 'E', 'G', 'D'],
+export const PRESET_CHORDS: Record<string, number[]> = {
+  'Major': [0, 4, 7],
+  'Minor': [0, 3, 7],
+  'Dim': [0, 3, 6],
+  'Aug': [0, 4, 8],
+  'Maj7': [0, 4, 7, 11],
+  'Min7': [0, 3, 7, 10],
+  'Dom7': [0, 4, 7, 10],
+  'Sus2': [0, 2, 7],
+  'Sus4': [0, 5, 7],
+  'Add9': [0, 4, 7, 14],
 };
 
 export const SNAP_DENOM: Record<SnapResolution, number> = {
@@ -168,6 +168,14 @@ export const TRACK_COLORS = [
   '#06b6d4', '#3b82f6', '#a855f7', '#ec4899',
   '#14b8a6', '#f43f5e', '#8b5cf6', '#0ea5e9',
 ];
+
+export interface SampleFile {
+  id: string;
+  name: string;
+  category: 'drums' | 'melodic' | 'vocal';
+  duration: number;
+  waveformData: number[];
+}
 
 export const BUILT_IN_SAMPLES: SampleFile[] = [
   { id: 'kick-808', name: '808 Kick', category: 'drums', duration: 0.5, waveformData: [] },

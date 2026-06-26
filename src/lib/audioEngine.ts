@@ -31,6 +31,8 @@ class AudioEngine {
   private countInStep = 0;
   private loopRegion: LoopRegion | null = null;
 
+  private disposed = false;
+
   constructor() {
     this.initEffects();
     this.initMetronome();
@@ -120,6 +122,20 @@ class AudioEngine {
   setLoopRegion(region: LoopRegion | null) { this.loopRegion = region; }
 
   updateTracks(tracks: Track[]) {
+    const newIds = new Set(tracks.map(t => t.id));
+    for (const id of this.nodes.keys()) {
+      if (!newIds.has(id)) {
+        const node = this.nodes.get(id)!;
+        node.instrument.dispose();
+        node.volumeNode.dispose();
+        node.panNode.dispose();
+        node.reverbSend.dispose();
+        node.delaySend.dispose();
+        node.distortionSend.dispose();
+        node.filterNode.dispose();
+        this.nodes.delete(id);
+      }
+    }
     this.tracks = tracks;
     tracks.forEach(t => this.getOrCreateNode(t));
     this.applyVolumes();
@@ -165,17 +181,16 @@ class AudioEngine {
     this.countInStep = 0;
 
     Tone.Transport.loop = true;
-    Tone.Transport.loopStart = 0;
-    Tone.Transport.loopEnd = `${totalSteps / STEPS_PER_BAR}m`;
+    if (this.loopRegion) {
+      Tone.Transport.loopStart = `${this.loopRegion.startStep * Tone.Time('16n').valueOf()}s`;
+      Tone.Transport.loopEnd = `${this.loopRegion.endStep * Tone.Time('16n').valueOf()}s`;
+    } else {
+      Tone.Transport.loopStart = 0;
+      Tone.Transport.loopEnd = `${totalSteps / STEPS_PER_BAR}m`;
+    }
     if (this.schedulerId !== null) Tone.Transport.clear(this.schedulerId);
 
     const countInSteps = countInBars * STEPS_PER_BAR;
-    if (countInSteps > 0) {
-      for (let i = 0; i < countInSteps; i++) {
-        const time = Tone.Transport.seconds + (i * Tone.Time('16n').valueOf());
-        this.triggerMetronome(i % 16 === 0, time);
-      }
-    }
 
     this.schedulerId = Tone.Transport.scheduleRepeat((time) => {
       if (this.countInStep < countInSteps) {
@@ -187,11 +202,15 @@ class AudioEngine {
       const step = this.currentStep;
       const hasSoloed = this.tracks.some(t => t.soloed);
 
+      const effectiveStep = this.loopRegion
+        ? ((step - this.loopRegion.startStep) % (this.loopRegion.endStep - this.loopRegion.startStep)) + this.loopRegion.startStep
+        : step;
+
       this.tracks.forEach(track => {
         if (track.muted || (hasSoloed && !track.soloed)) return;
         track.clips.forEach(clip => {
-          if (step < clip.startStep || step >= clip.startStep + clip.length) return;
-          const localStep = step - clip.startStep;
+          if (effectiveStep < clip.startStep || effectiveStep >= clip.startStep + clip.length) return;
+          const localStep = effectiveStep - clip.startStep;
           clip.notes.forEach(note => {
             if (note.step === localStep) {
               this.triggerNote(track, note.pitch, note.duration, note.velocity ?? 0.8, time);
@@ -203,10 +222,6 @@ class AudioEngine {
       if (this.metronomeEnabled) {
         this.triggerMetronome(step % 16 === 0, time);
       }
-
-      const effectiveStep = this.loopRegion
-        ? ((step - this.loopRegion.startStep) % (this.loopRegion.endStep - this.loopRegion.startStep)) + this.loopRegion.startStep
-        : step;
 
       this.currentStep = (step + 1) % this.totalSteps;
 
@@ -258,6 +273,13 @@ class AudioEngine {
     return new Blob([wavBuffer], { type: 'audio/wav' });
   }
 
+  reinit() {
+    if (!this.disposed) return;
+    this.disposed = false;
+    this.initEffects();
+    this.initMetronome();
+  }
+
   dispose() {
     this.stop();
     this.nodes.forEach(({ instrument, volumeNode, panNode, reverbSend, delaySend, distortionSend, filterNode }) => {
@@ -274,6 +296,11 @@ class AudioEngine {
     this.masterDelay?.dispose();
     this.masterDistortion?.dispose();
     this.metronomeSynth?.dispose();
+    this.masterReverb = null;
+    this.masterDelay = null;
+    this.masterDistortion = null;
+    this.metronomeSynth = null;
+    this.disposed = true;
   }
 }
 
