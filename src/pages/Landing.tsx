@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Music2, Layers, Cpu, Cloud, Zap, Sliders, ArrowRight, Play } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -114,6 +114,10 @@ export default function Landing() {
           <div className="flex items-center gap-2">
             <Music2 size={16} className="text-cyan-400" />
             <span className="text-sm font-semibold"><span className="text-white">GROOVE</span><span className="text-cyan-400">GRID</span></span>
+          </div>
+          <div className="flex items-center gap-6 text-xs text-gray-500">
+            <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
           </div>
           <p className="text-xs text-gray-600">Built with React, Tone.js, Tailwind CSS, and Supabase.</p>
         </div>

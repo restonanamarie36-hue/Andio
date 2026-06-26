@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Download, Loader2, X } from 'lucide-react';
+import { Download, Loader2, X, CheckCircle } from 'lucide-react';
 import { audioEngine } from '../lib/audioEngine';
+import { useToast } from './Toast';
+import { sanitizeFilename } from '../lib/utils';
 
 interface Props {
   isOpen: boolean;
@@ -13,6 +15,7 @@ interface Props {
 export default function ExportModal({ isOpen, onClose, projectName, totalSteps, bpm }: Props) {
   const [exporting, setExporting] = useState(false);
   const [progress, setProgress] = useState(0);
+  const { showToast } = useToast();
 
   if (!isOpen) return null;
 
@@ -33,9 +36,10 @@ export default function ExportModal({ isOpen, onClose, projectName, totalSteps, 
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${projectName.replace(/\s+/g, '_')}.wav`;
+        a.download = `${sanitizeFilename(projectName)}.wav`;
         a.click();
         URL.revokeObjectURL(url);
+        showToast('success', 'Export complete');
       }
 
       setTimeout(() => {

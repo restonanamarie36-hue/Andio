@@ -13,6 +13,7 @@ import SampleBrowser from '../components/SampleBrowser';
 import AudioRecorder from '../components/AudioRecorder';
 import ShortcutHelp from '../components/ShortcutHelp';
 import OnboardingPanel from '../components/OnboardingPanel';
+import { useToast } from '../components/Toast';
 import { Track, Clip, Note, BeatPosition, stepToBeatPosition, SnapResolution, LoopRegion, ViewMode, AutomationPoint, AutomationType, AudioClip, AudioFileRef } from '../types';
 import { createDefaultTracks, createEmptyTrack, createAudioTrack } from '../lib/defaultProject';
 import { generateClipId, generateNoteId, generateAudioFileId } from '../lib/idGenerator';
@@ -30,6 +31,7 @@ export default function DAW() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [loadingProject, setLoadingProject] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -87,10 +89,15 @@ export default function DAW() {
   const saveProject = async () => {
     if (!id || !user) return;
     setIsSaving(true);
-    await supabase.from('projects').update({
+    const { error } = await supabase.from('projects').update({
       name: projectName, bpm, data: { tracks, loopBars }, updated_at: new Date().toISOString()
     }).eq('id', id);
-    setHasUnsavedChanges(false);
+    if (error) {
+      showToast('error', 'Failed to save project');
+    } else {
+      setHasUnsavedChanges(false);
+      showToast('success', 'Project saved');
+    }
     setIsSaving(false);
   };
 

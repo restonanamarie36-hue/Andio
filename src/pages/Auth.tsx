@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Music2, Mail, Lock, Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Music2, Mail, Lock, Eye, EyeOff, ArrowLeft, Loader2, CheckSquare, Square } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Auth() {
@@ -12,6 +12,8 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -24,6 +26,10 @@ export default function Auth() {
     setSuccess('');
     if (!email.trim() || !password.trim()) { setError('Please fill in all fields.'); return; }
     if (password.length < 6) { setError('Password must be at least 6 characters.'); return; }
+    if (tab === 'register') {
+      if (!ageConfirmed) { setError('You must confirm you are at least 13 years old.'); return; }
+      if (!termsAccepted) { setError('You must accept the Terms of Service and Privacy Policy.'); return; }
+    }
 
     setLoading(true);
     if (tab === 'signin') {
@@ -86,6 +92,42 @@ export default function Auth() {
                 </button>
               </div>
             </div>
+
+            {tab === 'register' && (
+              <div className="space-y-3 mb-4">
+                <label className="flex items-start gap-2.5 cursor-pointer group">
+                  <button
+                    type="button"
+                    onClick={() => setAgeConfirmed(a => !a)}
+                    className={`mt-0.5 shrink-0 w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                      ageConfirmed ? 'bg-cyan-500 border-cyan-500 text-black' : 'border-white/20 group-hover:border-white/40'
+                    }`}
+                  >
+                    {ageConfirmed && <CheckSquare size={10} />}
+                  </button>
+                  <span className="text-xs text-gray-500 leading-relaxed">
+                    I confirm that I am at least <strong className="text-gray-400">13 years old</strong> (or 16 in the EU) and understand that parental consent is required for users under 18 in certain jurisdictions.
+                  </span>
+                </label>
+                <label className="flex items-start gap-2.5 cursor-pointer group">
+                  <button
+                    type="button"
+                    onClick={() => setTermsAccepted(t => !t)}
+                    className={`mt-0.5 shrink-0 w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                      termsAccepted ? 'bg-cyan-500 border-cyan-500 text-black' : 'border-white/20 group-hover:border-white/40'
+                    }`}
+                  >
+                    {termsAccepted && <CheckSquare size={10} />}
+                  </button>
+                  <span className="text-xs text-gray-500 leading-relaxed">
+                    I have read and agree to the{' '}
+                    <Link to="/terms" target="_blank" className="text-cyan-400 hover:underline">Terms of Service</Link> and{' '}
+                    <Link to="/privacy" target="_blank" className="text-cyan-400 hover:underline">Privacy Policy</Link>.
+                  </span>
+                </label>
+              </div>
+            )}
+
             <button type="submit" disabled={loading}
               className="w-full flex items-center justify-center gap-2 py-2.5 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-60 text-black font-bold rounded-lg transition-colors">
               {loading && <Loader2 size={14} className="animate-spin" />}
