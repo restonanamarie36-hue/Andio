@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { X, Pencil, Eraser, MousePointer, Music } from 'lucide-react';
-import { Track, Clip, Note, EditorTool, SnapResolution, snapStepToResolution, SNAP_DENOM, PRESET_CHORDS } from '../types';
+import { Track, Clip, Note, EditorTool, SnapResolution, snapStepToResolution, PRESET_CHORDS } from '../types';
 import VelocityLane from './VelocityLane';
 import ChordPanel from './ChordPanel';
 
@@ -43,22 +43,20 @@ export default function DetailEditor({
   const gridRef = useRef<HTMLDivElement>(null);
   const interactRef = useRef<'none' | 'drawing' | 'dragging' | 'resizing'>('none');
 
-  const safeZoom = Number.isFinite(zoom) && zoom > 0 && !isNaN(zoom) ? zoom : 1;
-  const colW = BASE_COL_W * safeZoom;
+  const colW = BASE_COL_W * zoom;
   const steps = clip ? clip.length : 16;
-  const safeSteps = Number.isFinite(steps) && steps > 0 ? steps : 16;
-  const gridW = Number.isFinite(safeSteps * colW) && safeSteps * colW > 0 ? safeSteps * colW : BASE_COL_W * 16;
-  const gridH = Number.isFinite(PIANO_PITCHES.length * ROW_H) ? PIANO_PITCHES.length * ROW_H : 0;
+  const gridW = steps * colW;
+  const gridH = PIANO_PITCHES.length * ROW_H;
 
   const getPosFromEvent = useCallback((e: React.MouseEvent | MouseEvent, el: HTMLElement) => {
     const rect = el.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const step = snapStepToResolution(Math.floor(Number.isFinite(x / colW) ? x / colW : 0), snapResolution);
-    const pitchIdx = Math.max(0, Math.min(PIANO_PITCHES.length - 1, Math.floor(Number.isFinite(y / ROW_H) ? y / ROW_H : 0)));
-    const snappedStep = Math.max(0, Math.min(safeSteps - 1, step));
+    const step = snapStepToResolution(Math.floor(x / colW), snapResolution);
+    const pitchIdx = Math.max(0, Math.min(PIANO_PITCHES.length - 1, Math.floor(y / ROW_H)));
+    const snappedStep = Math.min(steps - Math.round(16 / snapStepToResolution(1, snapResolution)), step);
     return { step: snappedStep, pitch: PIANO_PITCHES[pitchIdx], pitchIdx };
-  }, [safeSteps, colW, snapResolution]);
+  }, [steps, colW, snapResolution]);
 
   const handleGridMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!track || !clip || !gridRef.current || e.button !== 0) return;
@@ -82,9 +80,9 @@ export default function DetailEditor({
       const startX = e.clientX; const startY = e.clientY;
       const startStep = existing.step; const startPitchIdx = PIANO_PITCHES.indexOf(existing.pitch);
       const onMove = (me: MouseEvent) => {
-        const dStep = snapStepToResolution(Math.round(Number.isFinite((me.clientX - startX) / colW) ? (me.clientX - startX) / colW : 0), snapResolution);
-        const dPitch = Math.round(Number.isFinite((me.clientY - startY) / ROW_H) ? (me.clientY - startY) / ROW_H : 0);
-        const ns = Math.max(0, Math.min(safeSteps - existing.duration, startStep + dStep));
+        const dStep = snapStepToResolution(Math.round((me.clientX - startX) / colW), snapResolution);
+        const dPitch = Math.round((me.clientY - startY) / ROW_H);
+        const ns = Math.max(0, Math.min(steps - existing.duration, startStep + dStep));
         const np = Math.max(0, Math.min(PIANO_PITCHES.length - 1, startPitchIdx + dPitch));
         onNoteMove(track.id, clip.id, existing.id, ns, PIANO_PITCHES[np]);
       };
@@ -93,29 +91,28 @@ export default function DetailEditor({
     } else {
       interactRef.current = 'drawing';
       const snappedStep = snapStepToResolution(step, snapResolution);
-      const snapVal = SNAP_DENOM[snapResolution];
-      const newNote: Note = { id: genId(), pitch, step: snappedStep, duration: snapVal, velocity: 0.8 };
+      const newNote: Note = { id: genId(), pitch, step: snappedStep, duration: Math.round(16 / snapStepToResolution(1, snapResolution)), velocity: 0.8 };
       onNoteAdd(track.id, clip.id, newNote);
       const onMove = (me: MouseEvent) => {
         if (!gridRef.current) return;
         const rect = gridRef.current.getBoundingClientRect();
         const nx = me.clientX - rect.left;
-        const endStep = Math.max(0, Math.min(safeSteps - 1, Math.floor(Number.isFinite(nx / colW) ? nx / colW : 0)));
+        const endStep = Math.max(0, Math.min(steps - 1, Math.floor(nx / colW)));
         const snappedEnd = snapStepToResolution(endStep, snapResolution);
-        const newDur = Math.max(1, snappedEnd - newNote.step + snapVal);
+        const newDur = Math.max(1, snappedEnd - newNote.step + Math.round(16 / snapStepToResolution(1, snapResolution)));
         onNoteResize(track.id, clip.id, newNote.id, newDur);
       };
       const onUp = () => { interactRef.current = 'none'; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
       window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onUp);
     }
-  }, [track, clip, tool, colW, safeSteps, getPosFromEvent, onNoteAdd, onNoteRemove, onNoteMove, onNoteResize, snapResolution]);
+  }, [track, clip, tool, colW, steps, getPosFromEvent, onNoteAdd, onNoteRemove, onNoteMove, onNoteResize, snapResolution]);
 
   const handleNoteResizeStart = (e: React.MouseEvent, note: Note) => {
     if (!track || !clip) return;
     e.stopPropagation();
     interactRef.current = 'resizing';
     const startX = e.clientX; const startDur = note.duration;
-    const onMove = (me: MouseEvent) => { const newDur = Math.max(1, Math.min(safeSteps - note.step, startDur + Math.round(Number.isFinite((me.clientX - startX) / colW) ? (me.clientX - startX) / colW : 0))); onNoteResize(track.id, clip.id, note.id, newDur); };
+    const onMove = (me: MouseEvent) => { const newDur = Math.max(1, Math.min(steps - note.step, startDur + Math.round((me.clientX - startX) / colW))); onNoteResize(track.id, clip.id, note.id, newDur); };
     const onUp = () => { interactRef.current = 'none'; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
     window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onUp);
   };
@@ -147,8 +144,7 @@ export default function DetailEditor({
 
   const handleInsertChord = useCallback((notes: { pitch: string; step: number; velocity: number }[]) => {
     if (!track || !clip) return;
-    const snapVal = SNAP_DENOM[snapResolution];
-    const fullNotes: Note[] = notes.map(n => ({ id: genId(), pitch: n.pitch, step: currentStep, duration: snapVal, velocity: n.velocity }));
+    const fullNotes: Note[] = notes.map(n => ({ id: genId(), pitch: n.pitch, step: currentStep, duration: Math.round(16 / snapStepToResolution(1, snapResolution)), velocity: n.velocity }));
     onNotesAdd(track.id, clip.id, fullNotes);
   }, [track, clip, currentStep, onNotesAdd, snapResolution]);
 
@@ -195,7 +191,7 @@ export default function DetailEditor({
         )}
         <div className="flex items-center gap-2 ml-auto">
           <span className="text-[10px] text-gray-600">Zoom</span>
-          <input type="range" min={0.5} max={3} step={0.25} value={zoom} onChange={e => setZoom(isFinite(Number(e.target.value)) ? Number(e.target.value) : 1)} className="w-20 accent-cyan-400 h-0.5" />
+          <input type="range" min={0.5} max={3} step={0.25} value={zoom} onChange={e => setZoom(Number(e.target.value))} className="w-20 accent-cyan-400 h-0.5" />
         </div>
         <button onClick={onClose} className="ml-1 text-gray-600 hover:text-white transition-colors"><X size={14} /></button>
       </div>
@@ -210,7 +206,7 @@ export default function DetailEditor({
                 <ChordPanel
                   rootOctave={4}
                   onInsertChord={handleInsertChord}
-                  availableSteps={safeSteps}
+                  availableSteps={steps}
                   currentStep={currentStep}
                 />
               </div>
@@ -225,18 +221,18 @@ export default function DetailEditor({
               ))}
             </div>
             <div className="flex-1 overflow-auto">
-              <div ref={gridRef} className="relative select-none bg-[#14171d]"
+              <div ref={gridRef} className="relative select-none"
                 style={{ width: gridW, height: gridH, cursor: tool === 'pencil' ? 'crosshair' : tool === 'eraser' ? 'cell' : 'default' }}
                 onMouseDown={handleGridMouseDown}>
                 {PIANO_PITCHES.map((p, i) => (
-                  <div key={i} className={`absolute left-0 right-0 border-b pointer-events-none ${isBlack(p) ? 'bg-[#161820] border-black/25' : 'bg-[#1c1f26] border-black/15'}`}
+                  <div key={i} className={`absolute left-0 right-0 border-b ${isBlack(p) ? 'bg-[#161820] border-black/25' : 'bg-[#1c1f26] border-black/15'}`}
                     style={{ top: i * ROW_H, height: ROW_H }} />
                 ))}
-                {Array.from({ length: safeSteps + 1 }).map((_, i) => (
+                {Array.from({ length: steps + 1 }).map((_, i) => (
                   <div key={i} className={`absolute top-0 bottom-0 w-px pointer-events-none ${i % 16 === 0 ? 'bg-white/15' : i % 4 === 0 ? 'bg-white/8' : 'bg-white/3'}`}
-                    style={{ left: Number.isFinite(i * colW) ? i * colW : 0 }} />
+                    style={{ left: i * colW }} />
                 ))}
-                <div className="absolute top-0 bottom-0 w-0.5 bg-cyan-500/60 pointer-events-none z-20" style={{ left: Number.isFinite(currentStep * colW) ? currentStep * colW : 0 }} />
+                <div className="absolute top-0 bottom-0 w-0.5 bg-cyan-500/60 pointer-events-none z-20" style={{ left: currentStep * colW }} />
                 {clip.notes.map(note => {
                   const pitchIdx = PIANO_PITCHES.indexOf(note.pitch);
                   if (pitchIdx < 0) return null;
@@ -245,7 +241,7 @@ export default function DetailEditor({
                   return (
                     <div key={note.id}
                       className={`absolute rounded-sm z-10 group flex items-stretch cursor-grab active:cursor-grabbing ${isSelected ? 'ring-1 ring-white/60' : ''}`}
-                      style={{ left: Number.isFinite(note.step * colW) ? note.step * colW + 1 : 1, top: pitchIdx * ROW_H + 1, width: Number.isFinite(note.duration * colW) ? Math.max(note.duration * colW - 2, 4) : 4, height: ROW_H - 2, backgroundColor: `${track.color}${alpha}` }}
+                      style={{ left: note.step * colW + 1, top: pitchIdx * ROW_H + 1, width: Math.max(note.duration * colW - 2, 4), height: ROW_H - 2, backgroundColor: `${track.color}${alpha}` }}
                       onClick={e => { if (tool === 'eraser') { e.stopPropagation(); onNoteRemove(track.id, clip.id, note.id); } }}>
                       <div className="flex-1 min-w-0" />
                       <div className="w-1.5 h-full bg-black/20 hover:bg-black/40 cursor-ew-resize shrink-0 rounded-r-sm"

@@ -160,8 +160,7 @@ export const SNAP_DENOM: Record<SnapResolution, number> = {
 
 export function snapStepToResolution(step: number, resolution: SnapResolution): number {
   const denom = SNAP_DENOM[resolution];
-  const safeDenom = denom > 0 ? denom : 1;
-  return Math.round(step / safeDenom) * safeDenom;
+  return Math.round(step / denom) * denom;
 }
 
 export const TRACK_COLORS = [
