@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Folder, Music, Headphones, Volume2, Upload, Play, Square, Search, Grid, List } from 'lucide-react';
+import { Folder, Music, Headphones, Volume2, Upload, Play, Square, Search, Grid2x2 as Grid, List } from 'lucide-react';
 import { BUILT_IN_SAMPLES, SampleFile } from '../types';
 
 interface Props {

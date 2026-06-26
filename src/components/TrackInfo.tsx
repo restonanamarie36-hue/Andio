@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Trash2, Edit2, Check, Copy, Palette, Settings, Volume2 } from 'lucide-react';
+import { X, Trash2, CreditCard as Edit2, Check, Copy, Palette, Settings, Volume2 } from 'lucide-react';
 import { Track, TRACK_COLORS, InstrumentType, TrackCategory } from '../types';
 
 interface Props {

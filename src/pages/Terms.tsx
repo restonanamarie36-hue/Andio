@@ -7,8 +7,8 @@ export default function Terms() {
   const sectionIconSize = 18;
 
   return (
-    <div className="min-h-screen bg-[#0a0c11] text-gray-300">
-      <header className="border-b border-white/10 bg-[#0d0f14]/95 backdrop-blur-sm sticky top-0 z-40">
+    <div className="min-h-screen bg-[#1a1c20] text-gray-300">
+      <header className="border-b border-white/10 bg-[#16181c]/95 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <ArrowLeft size={16} />
@@ -20,29 +20,29 @@ export default function Terms() {
 
       <main className="max-w-4xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
-          <div className="w-16 h-16 rounded-2xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center mx-auto mb-4">
-            <Scale size={28} className="text-violet-400" />
+          <div className="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center mx-auto mb-4">
+            <Scale size={28} className="text-amber-400" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Terms of Service</h1>
-          <p className="text-gray-500">Please read these terms carefully before using GrooveGrid</p>
+          <p className="text-gray-500">Please read these terms carefully before using Andio</p>
         </div>
 
         <div className="space-y-10">
           <section>
             <div className="flex items-center gap-3 mb-4">
-              <FileText size={sectionIconSize} className="text-violet-400" />
+              <FileText size={sectionIconSize} className="text-amber-400" />
               <h2 className="text-xl font-semibold text-white">Acceptance of Terms</h2>
             </div>
             <div className="prose prose-invert max-w-none">
               <p className="text-gray-400">
-                By accessing or using GrooveGrid ("the Service"), you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this Service.
+                By accessing or using Andio ("the Service"), you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this Service.
               </p>
             </div>
           </section>
 
           <section>
             <div className="flex items-center gap-3 mb-4">
-              <Users size={sectionIconSize} className="text-violet-400" />
+              <Users size={sectionIconSize} className="text-amber-400" />
               <h2 className="text-xl font-semibold text-white">Account Eligibility</h2>
             </div>
             <div className="prose prose-invert max-w-none">
@@ -65,21 +65,21 @@ export default function Terms() {
 
           <section>
             <div className="flex items-center gap-3 mb-4">
-              <Copyright size={sectionIconSize} className="text-violet-400" />
+              <Copyright size={sectionIconSize} className="text-amber-400" />
               <h2 className="text-xl font-semibold text-white">Intellectual Property</h2>
             </div>
             <div className="prose prose-invert max-w-none">
               <h4 className="text-white mb-2">Your Content</h4>
               <p className="text-gray-400 mb-4">
-                You retain full ownership of all musical compositions, audio recordings, and other content you create using GrooveGrid. By using the Service, you grant GrooveGrid a limited license to store and display your content solely for the purpose of providing the Service to you.
+                You retain full ownership of all musical compositions, audio recordings, and other content you create using Andio. By using the Service, you grant Andio a limited license to store and display your content solely for the purpose of providing the Service to you.
               </p>
 
               <h4 className="text-white mb-2">Our Platform</h4>
               <p className="text-gray-400 mb-4">
-                The GrooveGrid application, including but not limited to its visual design, audio engine architecture, DSP algorithms, user interface, and source code, is protected by copyright and intellectual property laws.
+                The Andio application, including but not limited to its visual design, audio engine architecture, DSP algorithms, user interface, and source code, is protected by copyright and intellectual property laws.
               </p>
 
-              <div className="p-4 bg-[#141720] border border-white/10 rounded-lg">
+              <div className="p-4 bg-[#22252b] border border-white/10 rounded-lg">
                 <h4 className="text-white text-sm mb-2">Prohibited Activities:</h4>
                 <ul className="list-disc pl-5 text-sm text-gray-500 space-y-1">
                   <li>Reverse engineering, decompiling, or disassembling the application</li>
@@ -93,14 +93,14 @@ export default function Terms() {
 
           <section>
             <div className="flex items-center gap-3 mb-4">
-              <Scale size={sectionIconSize} className="text-violet-400" />
+              <Scale size={sectionIconSize} className="text-amber-400" />
               <h2 className="text-xl font-semibold text-white">Copyright & DMCA</h2>
             </div>
             <div className="prose prose-invert max-w-none">
               <p className="text-gray-400 mb-4">
-                In compliance with the Digital Millennium Copyright Act (DMCA) Title 17, Section 512, GrooveGrid maintains Safe Harbor protections for user-generated content.
+                In compliance with the Digital Millennium Copyright Act (DMCA) Title 17, Section 512, Andio maintains Safe Harbor protections for user-generated content.
               </p>
-              <div className="p-4 bg-[#141720] border border-white/10 rounded-lg mb-4">
+              <div className="p-4 bg-[#22252b] border border-white/10 rounded-lg mb-4">
                 <h4 className="text-white text-sm mb-2">DMCA Notice-and-Takedown Protocol</h4>
                 <p className="text-sm text-gray-500">
                   If you believe copyrighted material has been uploaded without authorization, send a DMCA takedown notice to our designated agent with:
@@ -115,7 +115,7 @@ export default function Terms() {
                 </ul>
               </div>
               <p className="text-sm text-gray-500">
-                <strong className="text-gray-400">DMCA Agent:</strong> dmca@groovegrid.app
+                <strong className="text-gray-400">DMCA Agent:</strong> dmca@andio.app
               </p>
             </div>
           </section>
@@ -156,10 +156,10 @@ export default function Terms() {
             <h2 className="text-xl font-semibold text-white mb-4">Limitation of Liability</h2>
             <div className="prose prose-invert max-w-none">
               <p className="text-gray-400">
-                IN NO EVENT SHALL GROOVEGRID BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF OR INABILITY TO USE THE SERVICE. OUR TOTAL LIABILITY SHALL NOT EXCEED THE AMOUNT YOU PAID (IF ANY) FOR ACCESSING THE SERVICE.
+                IN NO EVENT SHALL ANDIO BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF OR INABILITY TO USE THE SERVICE. OUR TOTAL LIABILITY SHALL NOT EXCEED THE AMOUNT YOU PAID (IF ANY) FOR ACCESSING THE SERVICE.
               </p>
               <p className="text-sm text-gray-500 mt-4">
-                Note: GrooveGrid is currently a free service. The limitation above applies to any damages that may arise from your use of the application.
+                Note: Andio is currently a free service. The limitation above applies to any damages that may arise from your use of the application.
               </p>
             </div>
           </section>
@@ -191,23 +191,23 @@ export default function Terms() {
             <h2 className="text-xl font-semibold text-white mb-4">Governing Law</h2>
             <div className="prose prose-invert max-w-none">
               <p className="text-gray-400">
-                These Terms shall be governed by the laws of the jurisdiction in which GrooveGrid operates. For users in the Philippines, this includes compliance with Republic Act No. 8293 (Intellectual Property Code) and Republic Act No. 10173 (Data Privacy Act).
+                These Terms shall be governed by the laws of the jurisdiction in which Andio operates. For users in the Philippines, this includes compliance with Republic Act No. 8293 (Intellectual Property Code) and Republic Act No. 10173 (Data Privacy Act).
               </p>
             </div>
           </section>
 
           <section>
             <div className="flex items-center gap-3 mb-4">
-              <Mail size={sectionIconSize} className="text-violet-400" />
+              <Mail size={sectionIconSize} className="text-amber-400" />
               <h2 className="text-xl font-semibold text-white">Contact</h2>
             </div>
             <div className="prose prose-invert max-w-none">
               <p className="text-gray-400">
                 For questions about these Terms, please contact us at:
               </p>
-              <div className="p-4 bg-[#141720] border border-white/10 rounded-lg mt-3">
-                <p><strong className="text-white">Legal Inquiries:</strong> legal@groovegrid.app</p>
-                <p className="mt-1"><strong className="text-white">Support:</strong> support@groovegrid.app</p>
+              <div className="p-4 bg-[#22252b] border border-white/10 rounded-lg mt-3">
+                <p><strong className="text-white">Legal Inquiries:</strong> legal@andio.app</p>
+                <p className="mt-1"><strong className="text-white">Support:</strong> support@andio.app</p>
               </div>
             </div>
           </section>
@@ -220,7 +220,7 @@ export default function Terms() {
             <Link to="/terms" className="hover:text-gray-400 transition-colors">Terms of Service</Link>
             <Link to="/privacy" className="hover:text-gray-400 transition-colors">Privacy Policy</Link>
           </div>
-          <p>© 2026 GrooveGrid. All rights reserved.</p>
+          <p>© 2026 Andio. All rights reserved.</p>
         </div>
       </footer>
     </div>
