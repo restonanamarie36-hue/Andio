@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { X, Pencil, Eraser, MousePointer, Music } from 'lucide-react';
-import { Track, Clip, Note, EditorTool, SnapResolution, snapStepToResolution, PRESET_CHORDS } from '../types';
+import { Track, Clip, Note, EditorTool, SnapResolution, snapStepToResolution, SNAP_DENOM, PRESET_CHORDS } from '../types';
 import VelocityLane from './VelocityLane';
 import ChordPanel from './ChordPanel';
 
@@ -54,7 +54,8 @@ export default function DetailEditor({
     const y = e.clientY - rect.top;
     const step = snapStepToResolution(Math.floor(x / colW), snapResolution);
     const pitchIdx = Math.max(0, Math.min(PIANO_PITCHES.length - 1, Math.floor(y / ROW_H)));
-    const snappedStep = Math.min(steps - Math.round(16 / snapStepToResolution(1, snapResolution)), step);
+    const defaultDur = SNAP_DENOM[snapResolution];
+    const snappedStep = Math.min(steps - defaultDur, step);
     return { step: snappedStep, pitch: PIANO_PITCHES[pitchIdx], pitchIdx };
   }, [steps, colW, snapResolution]);
 
@@ -91,7 +92,7 @@ export default function DetailEditor({
     } else {
       interactRef.current = 'drawing';
       const snappedStep = snapStepToResolution(step, snapResolution);
-      const newNote: Note = { id: genId(), pitch, step: snappedStep, duration: Math.round(16 / snapStepToResolution(1, snapResolution)), velocity: 0.8 };
+      const newNote: Note = { id: genId(), pitch, step: snappedStep, duration: SNAP_DENOM[snapResolution], velocity: 0.8 };
       onNoteAdd(track.id, clip.id, newNote);
       const onMove = (me: MouseEvent) => {
         if (!gridRef.current) return;
@@ -99,7 +100,7 @@ export default function DetailEditor({
         const nx = me.clientX - rect.left;
         const endStep = Math.max(0, Math.min(steps - 1, Math.floor(nx / colW)));
         const snappedEnd = snapStepToResolution(endStep, snapResolution);
-        const newDur = Math.max(1, snappedEnd - newNote.step + Math.round(16 / snapStepToResolution(1, snapResolution)));
+        const newDur = Math.max(1, snappedEnd - newNote.step + SNAP_DENOM[snapResolution]);
         onNoteResize(track.id, clip.id, newNote.id, newDur);
       };
       const onUp = () => { interactRef.current = 'none'; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
@@ -144,7 +145,7 @@ export default function DetailEditor({
 
   const handleInsertChord = useCallback((notes: { pitch: string; step: number; velocity: number }[]) => {
     if (!track || !clip) return;
-    const fullNotes: Note[] = notes.map(n => ({ id: genId(), pitch: n.pitch, step: currentStep, duration: Math.round(16 / snapStepToResolution(1, snapResolution)), velocity: n.velocity }));
+    const fullNotes: Note[] = notes.map(n => ({ id: genId(), pitch: n.pitch, step: currentStep, duration: SNAP_DENOM[snapResolution], velocity: n.velocity }));
     onNotesAdd(track.id, clip.id, fullNotes);
   }, [track, clip, currentStep, onNotesAdd, snapResolution]);
 
