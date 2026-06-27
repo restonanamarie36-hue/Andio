@@ -33,6 +33,28 @@ export default function Arranger({
   const gridW = Math.max(TOTAL_STEPS * STEP_W, 560);
   const playheadLeft = currentStep >= 0 ? currentStep * STEP_W : -1;
 
+  const trackScrollRef = useRef<HTMLDivElement>(null);
+  const laneScrollRef = useRef<HTMLDivElement>(null);
+  const syncingScroll = useRef(false);
+
+  const handleTrackScroll = () => {
+    if (syncingScroll.current) return;
+    syncingScroll.current = true;
+    if (laneScrollRef.current && trackScrollRef.current) {
+      laneScrollRef.current.scrollTop = trackScrollRef.current.scrollTop;
+    }
+    requestAnimationFrame(() => { syncingScroll.current = false; });
+  };
+
+  const handleLaneScroll = () => {
+    if (syncingScroll.current) return;
+    syncingScroll.current = true;
+    if (trackScrollRef.current && laneScrollRef.current) {
+      trackScrollRef.current.scrollTop = laneScrollRef.current.scrollTop;
+    }
+    requestAnimationFrame(() => { syncingScroll.current = false; });
+  };
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <div className="flex items-center px-4 py-1.5 border-b border-white/10 shrink-0 bg-[#16181c]">
@@ -54,7 +76,7 @@ export default function Arranger({
               <Plus size={10} /> Add Track
             </button>
           </div>
-          <div className="flex-1 overflow-y-hidden">
+          <div className="flex-1 overflow-y-auto" ref={trackScrollRef} onScroll={handleTrackScroll}>
             {tracks.map(track => (
               <TrackLabel key={track.id} track={track} isSelected={track.id === selectedTrackId}
                 onVolumeChange={v => onTrackVolumeChange(track.id, v)}
@@ -84,7 +106,7 @@ export default function Arranger({
             {loopRegion && (
               <LoopRegionHandle loopRegion={loopRegion} totalSteps={TOTAL_STEPS} onChange={onLoopRegionChange} />
             )}
-            <div className="relative">
+            <div className="relative" ref={laneScrollRef} onScroll={handleLaneScroll} style={{ overflowY: 'auto', maxHeight: 'calc(100% - 33px)' }}>
               {tracks.map(track => (
                 <TrackRow key={track.id} track={track} gridW={gridW} totalSteps={TOTAL_STEPS} selectedClipId={selectedClipId}
                   onClipSelect={clipId => onClipSelect(track.id, clipId)}
