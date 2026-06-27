@@ -171,10 +171,10 @@ export default function DAW() {
   }, [tracks, pushTracks]);
 
   const handleTrackDelete = useCallback((trackId: string) => {
-    if (tracks.length <= 1) return;
+    if (tracks.length <= 1) { showToast('error', 'At least one track must remain'); return; }
     pushTracks(tracks.filter(t => t.id !== trackId));
     if (selectedTrackId === trackId) { setSelectedTrackId(null); setSelectedClipId(null); }
-  }, [tracks, pushTracks, selectedTrackId]);
+  }, [tracks, pushTracks, selectedTrackId, showToast]);
 
   const handleTrackDuplicate = useCallback((trackId: string) => {
     const track = tracks.find(t => t.id === trackId);

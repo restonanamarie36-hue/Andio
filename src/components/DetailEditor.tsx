@@ -118,6 +118,26 @@ export default function DetailEditor({
     window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onUp);
   };
 
+  const handleNoteDragStart = (e: React.MouseEvent, note: Note) => {
+    if (!track || !clip) return;
+    e.stopPropagation();
+    if (tool === 'eraser') { onNoteRemove(track.id, clip.id, note.id); return; }
+    if (e.shiftKey) { setSelectedNoteIds(prev => new Set(prev).add(note.id)); return; }
+    if (!selectedNoteIds.has(note.id)) setSelectedNoteIds(new Set([note.id]));
+    interactRef.current = 'dragging';
+    const startX = e.clientX; const startY = e.clientY;
+    const startStep = note.step; const startPitchIdx = PIANO_PITCHES.indexOf(note.pitch);
+    const onMove = (me: MouseEvent) => {
+      const dStep = snapStepToResolution(Math.round((me.clientX - startX) / colW), snapResolution);
+      const dPitch = Math.round((me.clientY - startY) / ROW_H);
+      const ns = Math.max(0, Math.min(steps - note.duration, startStep + dStep));
+      const np = Math.max(0, Math.min(PIANO_PITCHES.length - 1, startPitchIdx + dPitch));
+      onNoteMove(track.id, clip.id, note.id, ns, PIANO_PITCHES[np]);
+    };
+    const onUp = () => { interactRef.current = 'none'; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+    window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onUp);
+  };
+
   const handleCopy = useCallback(() => {
     if (!clip) return;
     const notes = clip.notes.filter(n => selectedNoteIds.has(n.id));
@@ -243,6 +263,7 @@ export default function DetailEditor({
                     <div key={note.id}
                       className={`absolute rounded-sm z-10 group flex items-stretch cursor-grab active:cursor-grabbing ${isSelected ? 'ring-1 ring-white/60' : ''}`}
                       style={{ left: note.step * colW + 1, top: pitchIdx * ROW_H + 1, width: Math.max(note.duration * colW - 2, 4), height: ROW_H - 2, backgroundColor: `${track.color}${alpha}` }}
+                      onMouseDown={e => handleNoteDragStart(e, note)}
                       onClick={e => { if (tool === 'eraser') { e.stopPropagation(); onNoteRemove(track.id, clip.id, note.id); } }}>
                       <div className="flex-1 min-w-0" />
                       <div className="w-1.5 h-full bg-black/20 hover:bg-black/40 cursor-ew-resize shrink-0 rounded-r-sm"

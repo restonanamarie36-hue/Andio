@@ -61,6 +61,16 @@ export default function Header({
       </div>
 
       <div className="flex items-center gap-1.5 px-2 py-1 bg-[#22252b] border border-white/10 rounded-lg">
+        <span className="text-[10px] text-gray-500 uppercase tracking-widest">Bars</span>
+        <input type="number" value={loopBars} min={1} max={64} onChange={e => onLoopBarsChange(Math.max(1, Math.min(64, Number(e.target.value) || 1)))}
+          className="w-8 bg-transparent text-center text-white font-mono font-bold text-sm outline-none" />
+        <div className="flex flex-col">
+          <button onClick={() => onLoopBarsChange(Math.min(64, loopBars + 1))} className="text-gray-500 hover:text-white transition-colors leading-none"><ChevronUp size={10} /></button>
+          <button onClick={() => onLoopBarsChange(Math.max(1, loopBars - 1))} className="text-gray-500 hover:text-white transition-colors leading-none"><ChevronDown size={10} /></button>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-1.5 px-2 py-1 bg-[#22252b] border border-white/10 rounded-lg">
         <span className="text-[10px] text-gray-500 uppercase tracking-widest">Snap</span>
         <select value={snapResolution} onChange={e => onSnapChange(e.target.value as any)}
           className="bg-transparent text-white text-xs font-medium outline-none cursor-pointer">
