@@ -81,9 +81,9 @@ export default function DetailEditor({
       const startX = e.clientX; const startY = e.clientY;
       const startStep = existing.step; const startPitchIdx = PIANO_PITCHES.indexOf(existing.pitch);
       const onMove = (me: MouseEvent) => {
-        const dStep = snapStepToResolution(Math.round((me.clientX - startX) / colW), snapResolution);
+        const rawStep = startStep + (me.clientX - startX) / colW;
+        const ns = Math.max(0, Math.min(steps - existing.duration, snapStepToResolution(Math.round(rawStep), snapResolution)));
         const dPitch = Math.round((me.clientY - startY) / ROW_H);
-        const ns = Math.max(0, Math.min(steps - existing.duration, startStep + dStep));
         const np = Math.max(0, Math.min(PIANO_PITCHES.length - 1, startPitchIdx + dPitch));
         onNoteMove(track.id, clip.id, existing.id, ns, PIANO_PITCHES[np]);
       };
@@ -113,7 +113,7 @@ export default function DetailEditor({
     e.stopPropagation();
     interactRef.current = 'resizing';
     const startX = e.clientX; const startDur = note.duration;
-    const onMove = (me: MouseEvent) => { const newDur = Math.max(1, Math.min(steps - note.step, startDur + Math.round((me.clientX - startX) / colW))); onNoteResize(track.id, clip.id, note.id, newDur); };
+    const onMove = (me: MouseEvent) => { const rawEnd = note.step + startDur + (me.clientX - startX) / colW; const snappedEnd = snapStepToResolution(Math.round(rawEnd), snapResolution); const newDur = Math.max(1, Math.min(steps - note.step, snappedEnd - note.step)); onNoteResize(track.id, clip.id, note.id, newDur); };
     const onUp = () => { interactRef.current = 'none'; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
     window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onUp);
   };
@@ -128,9 +128,9 @@ export default function DetailEditor({
     const startX = e.clientX; const startY = e.clientY;
     const startStep = note.step; const startPitchIdx = PIANO_PITCHES.indexOf(note.pitch);
     const onMove = (me: MouseEvent) => {
-      const dStep = snapStepToResolution(Math.round((me.clientX - startX) / colW), snapResolution);
+      const rawStep = startStep + (me.clientX - startX) / colW;
+      const ns = Math.max(0, Math.min(steps - note.duration, snapStepToResolution(Math.round(rawStep), snapResolution)));
       const dPitch = Math.round((me.clientY - startY) / ROW_H);
-      const ns = Math.max(0, Math.min(steps - note.duration, startStep + dStep));
       const np = Math.max(0, Math.min(PIANO_PITCHES.length - 1, startPitchIdx + dPitch));
       onNoteMove(track.id, clip.id, note.id, ns, PIANO_PITCHES[np]);
     };
