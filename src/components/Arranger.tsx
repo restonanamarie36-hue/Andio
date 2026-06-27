@@ -51,7 +51,7 @@ export default function Arranger({
         <div className="shrink-0 flex flex-col" style={{ width: HEADER_W }}>
           <div className="shrink-0 border-b border-r border-white/10 bg-[#16181c] flex items-center px-2" style={{ height: RULER_H }}>
             <button onClick={() => onTrackSelect(null)} className="flex items-center gap-1 px-2 py-1 text-[10px] text-gray-500 hover:text-white border border-white/10 rounded hover:bg-white/5">
-              <Plus size={10} /> Deselect
+              <Plus size={10} /> Add Track
             </button>
           </div>
           <div className="flex-1 overflow-y-hidden">

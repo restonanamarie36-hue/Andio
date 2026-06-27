@@ -93,7 +93,7 @@ export default function OnboardingPanel() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-[#22252b] border border-white/10 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden relative">
+      <div className="bg-[#141720] border border-white/10 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
         <div className="p-8 text-center">
           <div className="w-14 h-14 rounded-2xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center mx-auto mb-4">
             <Icon size={24} className="text-teal-400" />

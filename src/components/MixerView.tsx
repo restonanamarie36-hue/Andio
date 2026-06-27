@@ -23,11 +23,8 @@ export default function MixerView({
   const [vuMeters, setVuMeters] = useState<Record<string, { left: number; right: number }>>({});
   const animationRef = useRef<number | null>(null);
 
+  // Simulate VU meter animation
   useEffect(() => {
-    if (!isPlaying) {
-      setVuMeters({});
-      return;
-    }
     const animate = () => {
       setVuMeters(prev => {
         const next = { ...prev };
@@ -50,7 +47,7 @@ export default function MixerView({
     };
     animationRef.current = requestAnimationFrame(animate);
     return () => { if (animationRef.current) cancelAnimationFrame(animationRef.current); };
-  }, [tracks, isPlaying]);
+  }, [tracks]);
 
   const dbToHeight = (db: number) => {
     if (db <= -60) return 0;

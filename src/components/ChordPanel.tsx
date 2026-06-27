@@ -16,12 +16,12 @@ export default function ChordPanel({ rootOctave, onInsertChord, availableSteps, 
   const [root, setRoot] = useState('C');
   const [octave, setOctave] = useState(rootOctave);
 
-  const buildChordPitches = (intervals: number[]): string[] => {
+  const buildChordPitches = (intervals: string[]): string[] => {
     const startIndex = ROOT_NOTES.indexOf(root);
-    return intervals.map(semitones => {
-      const noteIdx = (startIndex + semitones) % 12;
-      const octaveShift = Math.floor((startIndex + semitones) / 12);
-      return `${ROOT_NOTES[noteIdx]}${octave + octaveShift}`;
+    return intervals.map(interval => {
+      const intervalIndex = ROOT_NOTES.indexOf(interval.replace(/\d/g, ''));
+      const targetOctave = octave + (intervalIndex < startIndex ? 1 : 0);
+      return `${ROOT_NOTES[intervalIndex]}${targetOctave}`;
     });
   };
 

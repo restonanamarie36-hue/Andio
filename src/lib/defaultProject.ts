@@ -81,7 +81,6 @@ export function createAudioTrack(name: string, color: string): Track {
     muted: false,
     soloed: false,
     ...defaultTrackEffects,
-    clips: [],
   };
 }
 

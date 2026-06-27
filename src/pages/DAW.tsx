@@ -68,19 +68,16 @@ export default function DAW() {
   useEffect(() => {
     if (!id) { setLoadingProject(false); return; }
     supabase.from('projects').select('*').eq('id', id).single().then(({ data, error }) => {
-      if (error || !data) {
-        showToast('error', 'Failed to load project');
-        navigate('/dashboard');
-        return;
+      if (!error && data) {
+        setProjectName(data.name); setBpm(data.bpm);
+        const loaded = data.data?.tracks;
+        const loadedLoop = data.data?.loopBars ?? 4;
+        setLoopBars(loadedLoop);
+        if (loaded && loaded.length > 0) reset(loaded);
+        else reset(createDefaultTracks());
       }
-      setProjectName(data.name); setBpm(data.bpm);
-      const loaded = data.data?.tracks;
-      const loadedLoop = data.data?.loopBars ?? 4;
-      setLoopBars(loadedLoop);
-      if (loaded && loaded.length > 0) reset(loaded);
-      else reset(createDefaultTracks());
       setLoadingProject(false);
-      setTimeout(() => { initialLoadRef.current = true; }, 0);
+      initialLoadRef.current = true;
     });
   }, [id]);
 
@@ -89,11 +86,11 @@ export default function DAW() {
     setHasUnsavedChanges(true);
   }, [tracks, projectName, bpm, loopBars]);
 
-  const saveProject = useCallback(async () => {
-    if (!id || !user) { showToast('error', 'Cannot save without a project'); return; }
+  const saveProject = async () => {
+    if (!id || !user) return;
     setIsSaving(true);
     const { error } = await supabase.from('projects').update({
-      name: projectName, bpm, data: { tracks, loopBars }
+      name: projectName, bpm, data: { tracks, loopBars }, updated_at: new Date().toISOString()
     }).eq('id', id);
     if (error) {
       showToast('error', 'Failed to save project');
@@ -102,9 +99,8 @@ export default function DAW() {
       showToast('success', 'Project saved');
     }
     setIsSaving(false);
-  }, [id, user, projectName, bpm, tracks, loopBars, showToast]);
+  };
 
-  useEffect(() => { audioEngine.reinit(); audioEngine.updateTracks(tracks); }, []);
   useEffect(() => { audioEngine.updateTracks(tracks); }, [tracks]);
   useEffect(() => {
     audioEngine.setOnStepCallback((step) => {
@@ -117,13 +113,6 @@ export default function DAW() {
   useEffect(() => { audioEngine.setBpm(bpm); }, [bpm]);
   useEffect(() => { audioEngine.setMetronome(metronomeEnabled); }, [metronomeEnabled]);
   useEffect(() => { audioEngine.setLoopRegion(loopRegion); }, [loopRegion]);
-  useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) { e.preventDefault(); e.returnValue = ''; }
-    };
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, [hasUnsavedChanges]);
   useEffect(() => { return () => { audioEngine.dispose(); }; }, []);
 
   useEffect(() => {
@@ -146,7 +135,7 @@ export default function DAW() {
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [isPlaying, undo, redo, selectedClipId, tracks, hasUnsavedChanges, saveProject]);
+  }, [isPlaying, undo, redo, selectedClipId, tracks, hasUnsavedChanges]);
 
   const handlePlay = async () => {
     await audioEngine.start(loopBars * STEPS_PER_BAR, countInBars);
@@ -159,10 +148,7 @@ export default function DAW() {
     setBeatPosition({ bar: 1, beat: 1, sub: 1 });
   };
   const handleBpmChange = (val: number) => setBpm(clampBpm(val));
-  const handleLoopBarsChange = (bars: number) => {
-    setLoopBars(bars);
-    if (isPlaying) { audioEngine.stop(); audioEngine.start(bars * STEPS_PER_BAR, countInBars); }
-  };
+  const handleLoopBarsChange = (bars: number) => { setLoopBars(bars); if (isPlaying) { audioEngine.stop(); setIsPlaying(false); } };
 
   const handleTrackVolumeChange = useCallback((trackId: string, volume: number) => {
     pushTracks(tracks.map(t => t.id === trackId ? { ...t, volume } : t));
@@ -193,13 +179,7 @@ export default function DAW() {
   const handleTrackDuplicate = useCallback((trackId: string) => {
     const track = tracks.find(t => t.id === trackId);
     if (!track) return;
-    const newTrack: Track = {
-      ...track,
-      id: generateTrackId(),
-      name: `${track.name} (copy)`,
-      clips: track.clips.map(c => ({ ...c, id: generateClipId(), notes: c.notes.map(n => ({ ...n, id: generateNoteId() })) })),
-      audioClips: track.audioClips?.map(a => ({ ...a, id: generateClipId() })) ?? [],
-    };
+    const newTrack: Track = { ...track, id: `track-${Date.now()}`, name: `${track.name} (copy)` };
     pushTracks([...tracks, newTrack]);
   }, [tracks, pushTracks]);
 

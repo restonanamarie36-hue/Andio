@@ -39,7 +39,7 @@ export default function Auth() {
     } else {
       const err = await signUp(email, password);
       if (err) setError(err);
-      else { setSuccess('Account created! Check your email to confirm your account, then sign in.'); setTab('signin'); }
+      else { setSuccess('Account created! You can now sign in.'); setTab('signin'); }
     }
     setLoading(false);
   };
